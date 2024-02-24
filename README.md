@@ -1,8 +1,15 @@
 # Dialogue Trees C#
-Dialogue Trees is a plugin that adds a graph-based dialogue editor.
+Dialogue Trees is a plugin that adds a graph-based dialogue editor
 
 ### Please Note:
-Dialogue Trees is still in early development, this means that you will likely encounter bugs and issues, and that compatiblity breaking changes will happen in the future.
+Dialogue Trees is still in early development. This means that you will likely encounter bugs and issues, and that compatiblity breaking changes will happen in the future.
+
+## Features
+- Simple, understandable node-set
+- Powerful actions and variables
+- Compact save structure that doesn't bloat your scene files
+- A custom graph-arranger
+- Customiseable and extendible
 
 # Getting Started
 To begin with, you need to download the assets/dialogue_trees folder and add it to your project. After that, build your C# project and activate the plugin.
@@ -22,7 +29,7 @@ There are currently 10 dialogue nodes by default, this is a list of all of them 
 | Output | Outputs text and a character's name by sending the DialogueTree.DialogueOutput signal. |
 | Call | Activates a selected Function node. Mainly exists as a tool to make dialogue trees more readable. |
 | Function | Acts as a reciever for a Call node. |
-| Action | Activates a selected DialogueAction, DialogueActions are nodes that need to be added as children of a dialogue tree, and allow a dialogue tree to interact with the scene tree. DialogueActions are also designed to be very easy to extend, so you can create your own for certain situations. |
+| Action | Activates a selected DialogueAction. DialogueActions are nodes that need to be added as children of a dialogue tree, and allow a dialogue tree to interact with the scene tree. DialogueActions are also designed to be very easy to extend, so you can create your own for certain situations. |
 | Condition | Checks if a selected DialogueCondition is true, DialogueConditions are nodes that need to be added as children of a dialogue tree, and allow a dialogue tree to be affected by the state of the scene tree. Dialogue Conditions are designed to be very easy to extend, so you can create your own for certain situations. |
 | Variable | Defines a variable that can be modified and compared by Variable Setters and Variable Conditions. |
 | Variable Setter | Modifies the value of a varaible. |
@@ -70,5 +77,33 @@ public partial class DialogueReader : Node
 	}
 }
 ```
+# Settings and Customisation
+DialogueTrees was designed around being easily extended and modified, so you can add your own nodes, modify or remove, existing nodes, make your own variable types, and set up default graphs.
+
+## Settings Resource
+At this point in time, settings are handled by a resource at res://addons/dialogue_trees/dialogue_tree_settings.tres. This resource has two properties, Dialogue Node Data and Default Tree.
+
+### Default Tree
+The default tree that every new TreeData will be. You can set this by using the node creation menu and pressing 'Save Selected'. After saving the tree, you can drag the file into Default Tree, and it will become the default for any new TreeData resources.
+
+### Dialogue Node Data
+Every Dialogue Node is defined by a DialogueNodeData resource, stored in Dialogue Node Data. Each DialogueNodeData has several properties, the node name, the node save-name (usually a unique 3 character string), the node's scene, and the node's instance script.
+
+| Property | Type | Description |
+| --- | --- | --- |
+| Dialogue Node Name | StringName | The name of the node. This will display when in the node-creation menu. |
+| Dialogue Node Save Name | StringName | An abbreviation of the name. Usually 3 characters long, must be unique, so make sure it is not the same as other node save-names. If you change this value, any graphs that include this node will break. |  
+| Dialogue Node Scene | PackedScene | A scene that contains the DialogueNode as the root node (the node's script must inherit DialogueNode). This will be instantiated directly into the graph. |
+| Instance Script | Script | A Script that must inherit DialogueNodeInstance. This script provides the runtime functionality for the node. |
+
+### Custom Variable Types
+Variable nodes are designed with the ability to add multiple different value types. Currently, you will have to inherit the DialogueVariableNode script and override some functions to add your own. This system is likely to be overhauled in the future.
+
+# Gallery
+#### A simple branching dialogue tree
+![image](https://github.com/Ardot66/DialogueTrees/assets/142978236/2d7d8ffe-5959-4792-b1b4-4a2002488e6a)
+
+
+
 
 
