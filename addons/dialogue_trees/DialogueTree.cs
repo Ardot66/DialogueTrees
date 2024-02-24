@@ -6,6 +6,7 @@ namespace Ardot.DialogueTrees;
 
 [Tool]
 [GlobalClass]
+[Icon("res://addons/dialogue_trees/icons/dialogue_tree_icon.svg")]
 public partial class DialogueTree : Node
 {
 	private DialogueTreeData _treeData;

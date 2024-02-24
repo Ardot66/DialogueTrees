@@ -6,6 +6,7 @@ namespace Ardot.DialogueTrees.DialogueConditions;
 
 [Tool]
 [GlobalClass]
+[Icon("res://addons/dialogue_trees/icons/dialogue_condition_icon.svg")]
 public abstract partial class DialogueCondition : Node
 {
 	///<summary>Invokes this <c>DialogueCondition</c>.</summary>
