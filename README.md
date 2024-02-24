@@ -78,17 +78,16 @@ public partial class DialogueReader : Node
 }
 ```
 # Settings and Customisation
-DialogueTrees was designed around being easily extended and modified, so you can add your own nodes, modify or remove, existing nodes, make your own variable types, and set up default graphs.
+DialogueTrees was designed around being easily extended and modified, so you can add your own nodes, modify or remove existing nodes, make your own variable types, and set up default graphs.
 
 ## Settings Resource
 At this point in time, settings are handled by a resource at res://addons/dialogue_trees/dialogue_tree_settings.tres. This resource has two properties, Dialogue Node Data and Default Tree.
 
 ### Default Tree
-The default tree that every new TreeData will be. You can set this by using the node creation menu and pressing 'Save Selected'. After saving the tree, you can drag the file into Default Tree, and it will become the default for any new TreeData resources.
+Every new TreeData will be a copy of the Default Tree. You can set this by using the node creation menu and pressing 'Save Selected'. After saving the tree, you can drag the file into Default Tree, and it will become the default for any new TreeData resources.
 
 ### Dialogue Node Data
-Every Dialogue Node is defined by a DialogueNodeData resource, stored in Dialogue Node Data. Each DialogueNodeData has several properties, the node name, the node save-name (usually a unique 3 character string), the node's scene, and the node's instance script.
-
+Every Dialogue Node is defined by a DialogueNodeData resource, stored in Dialogue Node Data. Each DialogueNodeData has several properties. Here's is a list of them:
 | Property | Type | Description |
 | --- | --- | --- |
 | Dialogue Node Name | StringName | The name of the node. This will display when in the node-creation menu. |
@@ -101,7 +100,8 @@ Variable nodes are designed with the ability to add multiple different value typ
 
 # Gallery
 #### A simple branching dialogue tree
-![image](https://github.com/Ardot66/DialogueTrees/assets/142978236/2d7d8ffe-5959-4792-b1b4-4a2002488e6a)
+![image](https://github.com/Ardot66/DialogueTrees/assets/142978236/5560bab5-322c-4b14-a8f9-06f3e5b44884)
+
 
 
 
