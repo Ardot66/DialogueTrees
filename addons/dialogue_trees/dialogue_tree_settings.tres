@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="DialogueTreeSettings" load_steps=35 format=3 uid="uid://dvtkv3jpolrxg"]
+[gd_resource type="Resource" script_class="DialogueTreeSettings" load_steps=33 format=3 uid="uid://dvtkv3jpolrxg"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/DialogueTreeData.cs" id="1_t1ua2"]
 [ext_resource type="PackedScene" uid="uid://pfodcr3r8l8o" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_start_node.tscn" id="2_v04cf"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueStartNodeInstance.cs" id="3_uucib"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueNodeData.cs" id="4_eqgk7"]
@@ -23,13 +22,6 @@
 [ext_resource type="PackedScene" uid="uid://dypnu0ibv0f6m" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_variable_condition_node.tscn" id="21_1nwt4"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueVariableConditionNodeInstance.cs" id="22_wcs6x"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeSettings.cs" id="23_ei5fo"]
-
-[sub_resource type="Resource" id="Resource_2aqre"]
-script = ExtResource("1_t1ua2")
-_dialogueNodeTypeNames = []
-_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 1, 4, 4, 1, 2)
-_connections = PackedInt32Array(0, 1, 1, 0, 1, 0, 2, 0, 5, 0, 0, 0, 3, 0, 4, 0, 4, 0, 0, 0, 6, 0, 7, 0, 0, 0, 8, 0)
-DialogueNodeSaveData = [[PackedStringArray("Bye")], ["What?", ""], [5], null, ["Hello!", ""], ["Reset"], ["Bye"], ["Goodbye", ""], [6]]
 
 [sub_resource type="Resource" id="Resource_oolvc"]
 resource_name = "DialogueStartNode"
@@ -164,4 +156,3 @@ IncludeInNewTrees = 0
 [resource]
 script = ExtResource("23_ei5fo")
 DialogueNodeData = [SubResource("Resource_oolvc"), SubResource("Resource_4qbhv"), SubResource("Resource_bj300"), SubResource("Resource_dqun5"), SubResource("Resource_r0pj1"), SubResource("Resource_1rw7m"), SubResource("Resource_di83y"), SubResource("Resource_1ev0h"), SubResource("Resource_2bmik"), SubResource("Resource_empcp")]
-DefaultTree = SubResource("Resource_2aqre")

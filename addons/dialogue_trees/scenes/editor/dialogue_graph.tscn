@@ -14,4 +14,5 @@ right_disconnects = true
 zoom_min = 0.2
 zoom_max = 1000.0
 minimap_enabled = false
+show_arrange_button = false
 script = ExtResource("1_3whyo")

@@ -31,6 +31,9 @@ public partial class DialogueTree : Node
 	///<summary>The current <c>DialogueNodeInstance</c> that is recieving input. Setting this value is not recommended, prefer to use <c>DialogueNodeInstance.SendPortOutput()</c>.</summary>
 	public DialogueNodeInstance FocusedNode;
 
+	///<summary>Whether the dialogue is active. Dialogue stops being active when it ends.</summary>
+	public bool DialogueActive {get => FocusedNode != null;}
+
 	private Array<DialogueNodeInstance> _dialogueNodeInstances = new ();
 
 	///<summary>Called when the conversation is ended by a node in the tree.</summary>

@@ -37,17 +37,13 @@ public partial class DialogueTreeData : Resource
 
         SetNodeTypes(nodeTypes);
     }
-
-    [Export]
+    
     private Array<StringName> _dialogueNodeTypeNames = new ();
 
-    [Export]
     private int[] _dialogueNodeTypes = System.Array.Empty<int>();
 
-    [Export]
     private int[] _connections = System.Array.Empty<int>();
 
-    [Export]
 	///<summary>A collection of all data saved by each <c>DialogueNode</c>. This collection is always the same length as <c>DialogueNodeTypes</c>.</summary>
 	public Array<Array> DialogueNodeSaveData = new ();
 
@@ -110,6 +106,37 @@ public partial class DialogueTreeData : Resource
         }
 
         _connections = intConnections;
+    }
+
+    public override Array<Dictionary> _GetPropertyList()
+    {
+        return new ()
+        {
+            new ()
+            {
+                {"name", PropertyName._dialogueNodeTypeNames},
+                {"type", (int)Variant.Type.Array},
+                {"usage", (int)PropertyUsageFlags.Storage}
+            },
+            new ()
+            {
+                {"name", PropertyName._dialogueNodeTypes},
+                {"type", (int)Variant.Type.PackedInt32Array},
+                {"usage", (int)PropertyUsageFlags.Storage}
+            },
+            new ()
+            {
+                {"name", PropertyName._connections},
+                {"type", (int)Variant.Type.PackedInt32Array},
+                {"usage", (int)PropertyUsageFlags.Storage}
+            },
+            new ()
+            {
+                {"name", PropertyName.DialogueNodeSaveData},
+                {"type", (int)Variant.Type.Array},
+                {"usage", (int)PropertyUsageFlags.Storage}
+            }
+        };
     }
 
     public readonly struct Connection
