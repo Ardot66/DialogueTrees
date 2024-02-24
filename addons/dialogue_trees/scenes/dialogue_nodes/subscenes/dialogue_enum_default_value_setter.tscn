@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://bw4p0myl4v3fe"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumDefaultValueSetter.cs" id="1_3qej0"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_bdbpf"]
+
+[node name="DialogueEnumDefaultValueSetter" type="VBoxContainer"]
+offset_right = 45.0
+offset_bottom = 20.0
+size_flags_horizontal = 3
+script = ExtResource("1_3qej0")
+
+[node name="DefaultValueLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Default Value:"
+
+[node name="EnumOptionButton" type="OptionButton" parent="."]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+fit_to_longest_item = false
+script = ExtResource("2_bdbpf")
+SortItems = false

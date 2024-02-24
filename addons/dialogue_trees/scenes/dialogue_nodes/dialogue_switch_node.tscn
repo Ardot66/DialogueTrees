@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4xo7n35gvats"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueSwitchNode.cs" id="1_2vgh6"]
+
+[node name="DialogueSwitchNode" type="GraphNode"]
+custom_minimum_size = Vector2(200, 0)
+offset_right = 200.0
+offset_bottom = 86.0
+title = "Input Switch"
+slot/0/left_enabled = false
+slot/0/left_type = 0
+slot/0/left_color = Color(1, 1, 1, 1)
+slot/0/left_icon = null
+slot/0/right_enabled = false
+slot/0/right_type = 0
+slot/0/right_color = Color(1, 1, 1, 1)
+slot/0/right_icon = null
+slot/0/draw_stylebox = true
+slot/1/left_enabled = false
+slot/1/left_type = 0
+slot/1/left_color = Color(1, 1, 1, 1)
+slot/1/left_icon = null
+slot/1/right_enabled = false
+slot/1/right_type = 0
+slot/1/right_color = Color(1, 1, 1, 1)
+slot/1/right_icon = null
+slot/1/draw_stylebox = true
+script = ExtResource("1_2vgh6")
+
+[node name="Label" type="Label" parent="."]
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+text = "else
+"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="AddCaseButton" type="Button" parent="MarginContainer"]
+layout_mode = 2
+text = "Add Case"

@@ -1,0 +1,167 @@
+[gd_resource type="Resource" script_class="DialogueTreeSettings" load_steps=35 format=3 uid="uid://dvtkv3jpolrxg"]
+
+[ext_resource type="PackedScene" uid="uid://pfodcr3r8l8o" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_start_node.tscn" id="1_3b3jg"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/DialogueTreeData.cs" id="1_7811j"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueNodeData.cs" id="1_q02tx"]
+[ext_resource type="PackedScene" uid="uid://c4xo7n35gvats" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_switch_node.tscn" id="2_jeyf0"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueStartNodeInstance.cs" id="2_ktobw"]
+[ext_resource type="PackedScene" uid="uid://cmjfth5hsy6o" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_output_node.tscn" id="6_0t6tf"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueSwitchNodeInstance.cs" id="6_hhx8u"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueOutputNodeInstance.cs" id="7_j5bbj"]
+[ext_resource type="PackedScene" uid="uid://dyty2glhkr0u0" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_function_node.tscn" id="8_spho5"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueFunctionNodeInstance.cs" id="9_htcti"]
+[ext_resource type="PackedScene" uid="uid://bf2lk60nmvl6m" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_call_node.tscn" id="10_iq4o3"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueCallNodeInstance.cs" id="11_se67u"]
+[ext_resource type="PackedScene" uid="uid://dqy63db6jx6q5" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_action_node.tscn" id="12_j2u5j"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueActionNodeInstance.cs" id="13_p513r"]
+[ext_resource type="PackedScene" uid="uid://5nbp7khg6n3f" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_condition_node.tscn" id="14_yh07t"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueConditionNodeInstance.cs" id="15_p5ga7"]
+[ext_resource type="PackedScene" uid="uid://c8f83261mrwrk" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_variable_node.tscn" id="16_5l4av"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueVariableNodeInstance.cs" id="18_dh3lp"]
+[ext_resource type="PackedScene" uid="uid://dcvwvvgr6382f" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_variable_setter_node.tscn" id="19_hdo2g"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueVariableSetterNodeInstance.cs" id="20_yxwnj"]
+[ext_resource type="PackedScene" uid="uid://dypnu0ibv0f6m" path="res://addons/dialogue_trees/scenes/dialogue_nodes/dialogue_variable_condition_node.tscn" id="21_xvnrj"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_node_instances/DialogueVariableConditionNodeInstance.cs" id="22_uvkeq"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeSettings.cs" id="23_jhyp2"]
+
+[sub_resource type="Resource" id="Resource_2aqre"]
+script = ExtResource("1_7811j")
+_dialogueNodeTypeNames = [&"Swc", &"Out", &"Cal", &"Srt", &"Fnc"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 1, 4, 4, 1, 2)
+_connections = PackedInt32Array(0, 1, 1, 0, 1, 0, 2, 0, 5, 0, 0, 0, 3, 0, 4, 0, 4, 0, 0, 0, 6, 0, 7, 0, 0, 0, 8, 0)
+DialogueNodeSaveData = [[PackedStringArray("Bye")], ["What?", ""], [5], null, ["Hello!", ""], ["Reset"], ["Bye"], ["Goodbye", ""], [6]]
+
+[sub_resource type="Resource" id="Resource_oolvc"]
+resource_name = "DialogueStartNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Start"
+DialogueNodeSaveName = &"Srt"
+DialogueNodeScene = ExtResource("1_3b3jg")
+InstanceScript = ExtResource("2_ktobw")
+DialogueNodeTooltip = "The first node in any Dialogue Tree. Connected nodes are activated from here when dialogue begins."
+_nodeLimit = 1
+CanBeDeleted = false
+IncludeInAddNodeMenu = false
+IncludeInNewTrees = 1
+
+[sub_resource type="Resource" id="Resource_4qbhv"]
+resource_name = "DialogueSwitchNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Switch"
+DialogueNodeSaveName = &"Swc"
+DialogueNodeScene = ExtResource("2_jeyf0")
+InstanceScript = ExtResource("6_hhx8u")
+DialogueNodeTooltip = "Awaits input from the user and activates nodes that are connected to the case that matches the input."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_bj300"]
+resource_name = "DialogueOutputNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Output"
+DialogueNodeSaveName = &"Out"
+DialogueNodeScene = ExtResource("6_0t6tf")
+InstanceScript = ExtResource("7_j5bbj")
+DialogueNodeTooltip = "Outputs text to the user. Activates any connected nodes."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_dqun5"]
+resource_name = "DialogueFunctionNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Function"
+DialogueNodeSaveName = &"Fnc"
+DialogueNodeScene = ExtResource("8_spho5")
+InstanceScript = ExtResource("9_htcti")
+DialogueNodeTooltip = "Defines a function that can be activated by any Call node. When called, activates all connected nodes."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_r0pj1"]
+resource_name = "DialogueCallNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Call"
+DialogueNodeSaveName = &"Cal"
+DialogueNodeScene = ExtResource("10_iq4o3")
+InstanceScript = ExtResource("11_se67u")
+DialogueNodeTooltip = "Calls a function node, activating any nodes connected to the function. Ends the dialogue if no function is selected."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_1rw7m"]
+resource_name = "DialogueActionNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Action"
+DialogueNodeSaveName = &"Act"
+DialogueNodeScene = ExtResource("12_j2u5j")
+InstanceScript = ExtResource("13_p513r")
+DialogueNodeTooltip = "Runs an action."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_di83y"]
+resource_name = "DialogueConditionNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Condition"
+DialogueNodeSaveName = &"Con"
+DialogueNodeScene = ExtResource("14_yh07t")
+InstanceScript = ExtResource("15_p5ga7")
+DialogueNodeTooltip = "Checks if a condition evaluates as true or false. Defaults to else if no condition is set."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_1ev0h"]
+resource_name = "DialogueVariableNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Variable"
+DialogueNodeSaveName = &"Var"
+DialogueNodeScene = ExtResource("16_5l4av")
+InstanceScript = ExtResource("18_dh3lp")
+DialogueNodeTooltip = "Defines a variable that can be modified and compared."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_2bmik"]
+resource_name = "DialogueVariableSetterNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Variable Setter"
+DialogueNodeSaveName = &"VSt"
+DialogueNodeScene = ExtResource("19_hdo2g")
+InstanceScript = ExtResource("20_yxwnj")
+DialogueNodeTooltip = "Sets the value of a variable. Activates any connected nodes."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[sub_resource type="Resource" id="Resource_empcp"]
+resource_name = "DialogueVariableConditionNode"
+script = ExtResource("1_q02tx")
+DialogueNodeName = &"Variable Condition"
+DialogueNodeSaveName = &"VCn"
+DialogueNodeScene = ExtResource("21_xvnrj")
+InstanceScript = ExtResource("22_uvkeq")
+DialogueNodeTooltip = "Checks if a variable passes a condition. Defaults to else if no variable is set."
+_nodeLimit = -1
+CanBeDeleted = true
+IncludeInAddNodeMenu = true
+IncludeInNewTrees = 0
+
+[resource]
+script = ExtResource("23_jhyp2")
+DialogueNodeData = [SubResource("Resource_oolvc"), SubResource("Resource_4qbhv"), SubResource("Resource_bj300"), SubResource("Resource_dqun5"), SubResource("Resource_r0pj1"), SubResource("Resource_1rw7m"), SubResource("Resource_di83y"), SubResource("Resource_1ev0h"), SubResource("Resource_2bmik"), SubResource("Resource_empcp")]
+DefaultTree = SubResource("Resource_2aqre")

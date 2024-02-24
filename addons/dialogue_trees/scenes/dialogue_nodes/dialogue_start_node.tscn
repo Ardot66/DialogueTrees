@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://pfodcr3r8l8o"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueStartNode.cs" id="1_lvy0d"]
+
+[node name="DialogueStartNode" type="GraphNode"]
+custom_minimum_size = Vector2(75, 0)
+offset_right = 64.0
+offset_bottom = 55.0
+title = "Start"
+slot/0/left_enabled = false
+slot/0/left_type = 0
+slot/0/left_color = Color(1, 1, 1, 1)
+slot/0/left_icon = null
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color(1, 1, 1, 1)
+slot/0/right_icon = null
+slot/0/draw_stylebox = true
+script = ExtResource("1_lvy0d")
+
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2

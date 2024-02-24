@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://cckx6dlxdbmsj"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumSetter.cs" id="1_5s140"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_6w81n"]
+
+[node name="DialogueEnumSetter" type="HBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_5s140")
+
+[node name="ToLabel" type="Label" parent="."]
+layout_mode = 2
+text = "To"
+
+[node name="EnumOptionButton" type="OptionButton" parent="."]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+fit_to_longest_item = false
+script = ExtResource("2_6w81n")
+SortItems = false

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://10ef0yljes8a"]
+
+[node name="ArrangeNodesButton" type="HBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VSeparator" type="VSeparator" parent="."]
+layout_mode = 2
+
+[node name="ArrangeSelectedButton" type="Button" parent="."]
+layout_mode = 2
+tooltip_text = "Automatically arranges selected nodes."
+text = "Arrange Selected"
+flat = true
+
+[node name="VSeparator2" type="VSeparator" parent="."]
+layout_mode = 2
+
+[node name="ArrangeAllButton" type="Button" parent="."]
+layout_mode = 2
+tooltip_text = "Automatically arranges all nodes."
+text = "Arrange All"
+flat = true

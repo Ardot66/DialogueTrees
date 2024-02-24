@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://d38dqvkl8w04y"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumCondition.cs" id="1_15ber"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_1bj73"]
+
+[node name="DialogueEnumCondition" type="HBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_15ber")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Is"
+
+[node name="EnumOptionButton" type="OptionButton" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_1bj73")
+SortItems = false

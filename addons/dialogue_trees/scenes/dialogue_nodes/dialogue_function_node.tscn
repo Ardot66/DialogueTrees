@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://dyty2glhkr0u0"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueFunctionNode.cs" id="1_5e8xb"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorLineEdit.cs" id="2_ejru7"]
+
+[node name="DialogueFunctionNode" type="GraphNode"]
+custom_minimum_size = Vector2(150, 0)
+offset_right = 9.0
+offset_bottom = 55.0
+title = "Function"
+slot/0/left_enabled = false
+slot/0/left_type = 0
+slot/0/left_color = Color(1, 1, 1, 1)
+slot/0/left_icon = null
+slot/0/right_enabled = true
+slot/0/right_type = 0
+slot/0/right_color = Color(1, 1, 1, 1)
+slot/0/right_icon = null
+slot/0/draw_stylebox = true
+script = ExtResource("1_5e8xb")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="FunctionNameEdit" type="LineEdit" parent="MarginContainer"]
+layout_mode = 2
+script = ExtResource("2_ejru7")

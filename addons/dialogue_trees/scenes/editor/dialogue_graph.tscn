@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://cb7hw8jnpxljb"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueGraph.cs" id="1_3whyo"]
+
+[node name="DialogueGraph" type="GraphEdit"]
+custom_minimum_size = Vector2(200, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scroll_offset = Vector2(-200, 0)
+right_disconnects = true
+zoom_min = 0.2
+zoom_max = 1000.0
+minimap_enabled = false
+script = ExtResource("1_3whyo")

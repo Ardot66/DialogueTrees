@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://l8cx82csmogw"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumDefinition.cs" id="1_3qmpk"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="2_feasd"]
+
+[node name="DialogueEnumDefinition" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_3qmpk")
+
+[node name="ValuesLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Possible Values:"
+
+[node name="AddEnumValueButton" type="Button" parent="."]
+layout_mode = 2
+text = "Add Value"
+script = ExtResource("2_feasd")

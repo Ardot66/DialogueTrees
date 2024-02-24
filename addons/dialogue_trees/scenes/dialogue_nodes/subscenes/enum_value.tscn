@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://1c2lfg47octl"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorLineEdit.cs" id="1_p5ib8"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="2_bynie"]
+
+[node name="EnumValue" type="MarginContainer"]
+offset_right = 200.0
+offset_bottom = 18.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="EnumValueLineEdit" type="LineEdit" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+expand_to_text_length = true
+script = ExtResource("1_p5ib8")
+
+[node name="RemoveEnumValueButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_stretch_ratio = 0.0
+text = "X"
+script = ExtResource("2_bynie")
