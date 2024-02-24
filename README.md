@@ -100,7 +100,7 @@ Variable nodes are designed with the ability to add multiple different value typ
 
 # Gallery
 #### A simple branching dialogue tree
-![image](https://github.com/Ardot66/DialogueTrees/assets/142978236/5560bab5-322c-4b14-a8f9-06f3e5b44884)
+![image](https://github.com/Ardot66/DialogueTrees/blob/main/screenshots/basic_graph.png)
 
 
 
