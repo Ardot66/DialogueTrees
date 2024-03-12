@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqy63db6jx6q5"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueActionNode.cs" id="1_bwcny"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_mrsoh"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/action/DialogueActionNode.cs" id="1_bwcny"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_mrsoh"]
 
 [node name="DialogueActionNode" type="GraphNode"]
 custom_minimum_size = Vector2(150, 0)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://l8cx82csmogw"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumDefinition.cs" id="1_3qmpk"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="2_feasd"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_subnodes/enum/DialogueEnumDefinition.cs" id="1_3qmpk"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="2_feasd"]
 
 [node name="DialogueEnumDefinition" type="VBoxContainer"]
 offset_right = 40.0

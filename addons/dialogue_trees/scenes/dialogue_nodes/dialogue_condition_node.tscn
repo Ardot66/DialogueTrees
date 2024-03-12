@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://5nbp7khg6n3f"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueConditionNode.cs" id="1_325ut"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_f3vxo"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/condition/DialogueConditionNode.cs" id="1_325ut"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_f3vxo"]
 
 [node name="DialogueConditionNode" type="GraphNode"]
 custom_minimum_size = Vector2(150, 0)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bw4p0myl4v3fe"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_nodes/DialogueEnumDefaultValueSetter.cs" id="1_3qej0"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_bdbpf"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_subnodes/enum/DialogueEnumDefaultValueSetter.cs" id="1_3qej0"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_bdbpf"]
 
 [node name="DialogueEnumDefaultValueSetter" type="VBoxContainer"]
 offset_right = 45.0

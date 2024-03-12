@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cmjfth5hsy6o"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueOutputNode.cs" id="1_wxdhk"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorTextEdit.cs" id="2_hhgy2"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorLineEdit.cs" id="2_i4rs3"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/output/DialogueOutputNode.cs" id="1_wxdhk"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorTextEdit.cs" id="2_hhgy2"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorLineEdit.cs" id="2_i4rs3"]
 
 [node name="DialogueOutputNode" type="GraphNode"]
 custom_minimum_size = Vector2(250, 0)

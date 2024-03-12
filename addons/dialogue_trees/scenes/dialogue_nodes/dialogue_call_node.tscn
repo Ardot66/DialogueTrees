@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bf2lk60nmvl6m"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueCallNode.cs" id="1_bjcim"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_04os6"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/call/DialogueCallNode.cs" id="1_bjcim"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_04os6"]
 
 [node name="DialogueCallNode" type="GraphNode"]
 custom_minimum_size = Vector2(150, 0)

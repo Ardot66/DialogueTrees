@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c4xo7n35gvats"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueSwitchNode.cs" id="1_2vgh6"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/switch/DialogueSwitchNode.cs" id="1_2vgh6"]
 
 [node name="DialogueSwitchNode" type="GraphNode"]
 custom_minimum_size = Vector2(200, 0)

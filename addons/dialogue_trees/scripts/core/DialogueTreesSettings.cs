@@ -16,7 +16,7 @@ public partial class DialogueTreesSettings : Resource
 	}
 
 	public const string 
-	DialogueTreesSettingsPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/dialogue_tree_settings.tres";
+	DialogueTreesSettingsPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/dialogue_trees_settings.tres";
 
 	public static DialogueTreesSettings Singleton => _singleton;
 
@@ -74,7 +74,7 @@ public partial class DialogueTreesSettings : Resource
 	{
 		if(!ResourceLoader.Exists(DialogueTreesSettingsPath))
 		{
-			GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the plugin or place a new DialogueTreeSettings at {DialogueTreesSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
+			GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the DialogueTrees plugin or place a new DialogueTreesSettings at {DialogueTreesSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
 			return null;
 		}
 

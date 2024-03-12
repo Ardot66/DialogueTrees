@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dcvwvvgr6382f"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueVariableSetterNode.cs" id="1_xx8it"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorOptionButton.cs" id="2_m37vk"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/variable_setter/DialogueVariableSetterNode.cs" id="1_xx8it"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_m37vk"]
 
 [node name="DialogueVariableSetterNode" type="GraphNode"]
 custom_minimum_size = Vector2(200, 0)

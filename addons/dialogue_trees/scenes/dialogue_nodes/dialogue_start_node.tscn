@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://pfodcr3r8l8o"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/DialogueStartNode.cs" id="1_lvy0d"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/start/DialogueStartNode.cs" id="1_lvy0d"]
 
 [node name="DialogueStartNode" type="GraphNode"]
 custom_minimum_size = Vector2(75, 0)

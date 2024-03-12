@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b2anpbqd0wsr"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorTextEdit.cs" id="1_m75q8"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="1_nkotm"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorTextEdit.cs" id="1_m75q8"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="1_nkotm"]
 
 [node name="CaseText" type="MarginContainer"]
 offset_right = 200.0

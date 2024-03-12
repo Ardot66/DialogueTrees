@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://1c2lfg47octl"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/EditorLineEdit.cs" id="1_p5ib8"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="2_bynie"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorLineEdit.cs" id="1_p5ib8"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="2_bynie"]
 
 [node name="EnumValue" type="MarginContainer"]
 offset_right = 200.0

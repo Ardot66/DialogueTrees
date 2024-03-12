@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c52ll55qb8u3w"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/ValueButton.cs" id="1_du5wp"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="1_du5wp"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qk2fq"]
 
