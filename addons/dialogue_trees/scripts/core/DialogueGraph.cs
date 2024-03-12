@@ -197,7 +197,7 @@ public partial class DialogueGraph : GraphEdit
 		if(preLoadedNodes == null)
 			for (int x = 0; x < treeData.DialogueNodeSaveData.Count; x++)
 			{
-				Node node = InstantiateDialogueNode(DialogueTreeSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x))) ?? new Node();
+				Node node = InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x))) ?? new Node();
 				AddDialogueNode(node, x);
 
 				if(node is DialogueNode dialogueNode)

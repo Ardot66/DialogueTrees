@@ -1,23 +1,26 @@
 using Godot;
 using System;
+using System.Linq;
 
 namespace Ardot.DialogueTrees;
 
+///<summary>Class for storing settings for dialogue nodes and dialogue trees. To add your own settings, create your own partial DialogueTreeSettings.</summary>
+
 [Tool]
 [GlobalClass]
-public partial class DialogueTreeSettings : Resource
+public partial class DialogueTreesSettings : Resource
 {
-	public DialogueTreeSettings()
+	public DialogueTreesSettings()
 	{
 		_singleton = this;
 	}
 
 	public const string 
-	DialogueTreeSettingsPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/dialogue_tree_settings.tres";
+	DialogueTreesSettingsPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/dialogue_tree_settings.tres";
 
-	public static DialogueTreeSettings Singleton => _singleton;
+	public static DialogueTreesSettings Singleton => _singleton;
 
-	private static DialogueTreeSettings _singleton = null;
+	private static DialogueTreesSettings _singleton = null;
 
 	///<summary>Called when the <c>DialogueNodeData</c> variable of this <c>DialogueTreeSettings</c> is modified.</summary>
 	[Signal]
@@ -45,6 +48,12 @@ public partial class DialogueTreeSettings : Resource
 	[Export]
 	public DialogueTreeData DefaultTree = null;
 
+	///<summary>Helper function for adding <c>DialogueNodeData</c> resources to the DialogueNodeData list.</summary>
+	public void AddDialogueNodeData(DialogueNodeData[] dialogueNodeData)
+	{
+		DialogueNodeData = _dialogueNodeData.Concat(dialogueNodeData).ToArray();
+	}
+
 	public DialogueNodeData GetDialogueNodeData(StringName dialogueNodeSaveName)
 	{
 		foreach(DialogueNodeData dialogueNodeData in DialogueNodeData)
@@ -61,14 +70,14 @@ public partial class DialogueTreeSettings : Resource
 		EmitSignal(SignalName.DialogueNodeCollectionChanged);
 	}
 
-	public static DialogueTreeSettings LoadSettings()
+	public static DialogueTreesSettings LoadSettings()
 	{
-		if(!ResourceLoader.Exists(DialogueTreeSettingsPath))
+		if(!ResourceLoader.Exists(DialogueTreesSettingsPath))
 		{
-			GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the plugin or place a new DialogueTreeSettings at {DialogueTreeSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
+			GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the plugin or place a new DialogueTreeSettings at {DialogueTreesSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
 			return null;
 		}
 
-		return ResourceLoader.Load<DialogueTreeSettings>(DialogueTreeSettingsPath);
+		return ResourceLoader.Load<DialogueTreesSettings>(DialogueTreesSettingsPath);
 	}
 }

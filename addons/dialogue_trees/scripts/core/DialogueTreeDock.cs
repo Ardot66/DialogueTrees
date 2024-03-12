@@ -113,7 +113,7 @@ public partial class DialogueTreeDock : Control
 
 		int popupItemCount = 0;
 		
-		foreach(DialogueNodeData dialogueNodeData in DialogueTreeSettings.Singleton.DialogueNodeData)
+		foreach(DialogueNodeData dialogueNodeData in DialogueTreesSettings.Singleton.DialogueNodeData)
 		{
 			if(dialogueNodeData == null || !dialogueNodeData.IncludeInAddNodeMenu)
 				continue;

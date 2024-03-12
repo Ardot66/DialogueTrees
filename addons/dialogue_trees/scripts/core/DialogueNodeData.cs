@@ -85,7 +85,7 @@ public partial class DialogueNodeData : Resource
     [Export]
     public int IncludeInNewTrees = 0;
 
-    public DialogueTreeSettings dialogueNodeCollection;
+    public DialogueTreesSettings dialogueNodeCollection;
 
     public bool IsValid()
     {

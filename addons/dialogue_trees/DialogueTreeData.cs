@@ -10,7 +10,7 @@ public partial class DialogueTreeData : Resource
 {
     public DialogueTreeData()
     {
-        DialogueTreeSettings settings = DialogueTreeSettings.Singleton;
+        DialogueTreesSettings settings = DialogueTreesSettings.Singleton;
 
         if(settings == null)
             return;

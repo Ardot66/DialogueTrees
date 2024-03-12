@@ -20,11 +20,11 @@ public partial class DialogueTreesPlugin : EditorPlugin
 
 	public DialogueTree EditedDialogueTree;
 
-    public override void _EnterTree()
+	public override void _EnterTree()
 	{
 		UndoRedo = GetUndoRedo();
 
-		DialogueTreeSettings.LoadSettings();
+		DialogueTreesSettings.LoadSettings();
 		Dock = ResourceLoader.Load<PackedScene>(_dialogueTreeDockScenePath).Instantiate<DialogueTreeDock>();
 
 		BottomPanelButton = AddControlToBottomPanel(Dock, "Dialogue");
@@ -53,14 +53,14 @@ public partial class DialogueTreesPlugin : EditorPlugin
 		Dock.DockVisible = visible;
 	}
 
-    public override void _ApplyChanges()
-    {
-        if(EditedDialogueTree != null)
+	public override void _ApplyChanges()
+	{
+		if(EditedDialogueTree != null)
 			Dock.SaveTree();
-    }
+	}
 
-    public override void _Edit(GodotObject @object)
-    {
+	public override void _Edit(GodotObject @object)
+	{
 		if(@object is DialogueTree dialogueTree && IsInstanceValid(@object))
 		{
 			if(EditedDialogueTree != dialogueTree)
@@ -74,6 +74,6 @@ public partial class DialogueTreesPlugin : EditorPlugin
 		}
 		else if (@object == null || !IsInstanceValid(@object))
 			Dock.SaveTree();
-    }
+	}
 }
 #endif

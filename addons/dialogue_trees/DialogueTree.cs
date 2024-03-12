@@ -26,7 +26,7 @@ public partial class DialogueTree : Node
 
 	
 	///<summary>A reference to the global <c>DialogueTreeSettings</c> resource.</summary>
-	public DialogueTreeSettings DialogueTreeSettings;
+	public DialogueTreesSettings DialogueTreeSettings;
 
 	///<summary>The current <c>DialogueNodeInstance</c> that is recieving input. Setting this value is not recommended, prefer to use <c>DialogueNodeInstance.SendPortOutput()</c>.</summary>
 	public DialogueNodeInstance FocusedNode;
@@ -140,7 +140,7 @@ public partial class DialogueTree : Node
 
 	public override void _Ready()
 	{
-		DialogueTreeSettings = DialogueTreeSettings.LoadSettings();
+		DialogueTreeSettings = DialogueTreesSettings.LoadSettings();
 	}
 
 	private DialogueNodeInstance GetFirstDialogueNodeOfType(DialogueNodeData dialogueNodeData)
