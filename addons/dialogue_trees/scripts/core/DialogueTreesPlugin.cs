@@ -1,15 +1,18 @@
-#if TOOLS
-
 using Godot;
 using System;
 
 namespace Ardot.DialogueTrees;
 
 [Tool]
-public partial class DialogueTreesPlugin : EditorPlugin
+public partial class DialogueTreesPlugin 
+# if TOOLS
+: EditorPlugin
+# endif
 {
 	public const string 
 	DialogueTreesPluginPath = "res://addons/dialogue_trees";
+
+	# if TOOLS
 
 	private const string
 	_dialogueTreeDockScenePath = $"{DialogueTreesPluginPath}/scenes/editor/dialogue_tree_dock.tscn";
@@ -75,5 +78,7 @@ public partial class DialogueTreesPlugin : EditorPlugin
 		else if (@object == null || !IsInstanceValid(@object))
 			Dock.SaveTree();
 	}
+	
+	#endif
 }
-#endif
+

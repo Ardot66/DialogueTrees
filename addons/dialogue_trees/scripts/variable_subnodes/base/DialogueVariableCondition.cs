@@ -1,3 +1,5 @@
+# if TOOLS
+
 using Godot;
 using Godot.Collections;
 using Ardot.DialogueTrees.DialogueNodes;
@@ -12,3 +14,5 @@ public abstract partial class DialogueVariableCondition : HBoxContainer
 
 	public abstract void Load(Array data);
 }
+
+# endif

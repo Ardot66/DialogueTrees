@@ -91,6 +91,8 @@ public partial class DialogueNodeData : Resource
     {
         return DialogueNodeScene != null && InstanceScript != null && !string.IsNullOrEmpty(DialogueNodeName) && !string.IsNullOrEmpty(DialogueNodeSaveName);
     }
+
+    # if TOOLS
     
     public bool TryInstantiateDialogueNode(out DialogueNode dialogueNode)
     {
@@ -103,6 +105,8 @@ public partial class DialogueNodeData : Resource
 
         return dialogueNode != null;
     }
+
+    # endif
 
     public bool TryInstantiateDialogueNodeInstance(out DialogueNodeInstance dialogueNodeInstance)
     {
