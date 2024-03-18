@@ -88,10 +88,10 @@ public partial class DialogueVariableNode : DialogueNode
 		{
 			new(
 				"Enum",
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/dialogue_enum_default_value_setter.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/dialogue_enum_definition.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/dialogue_enum_setter.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/dialogue_enum_condition.tscn")
+				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_default_value_setter.tscn"),
+				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_definition.tscn"),
+				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_setter.tscn"),
+				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_condition.tscn")
 			)
 		};
 	}

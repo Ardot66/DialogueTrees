@@ -10,7 +10,7 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 public partial class DialogueEnumDefinition : DialogueVariableDefinition
 {
 	private const string
-	_enumValueTextScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/enum_value.tscn", 
+	_enumValueTextScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/enum_value.tscn", 
 	_enumValueLineEditPath = "HBoxContainer/EnumValueLineEdit",
 	_removeEnumValueButtonPath = "HBoxContainer/RemoveEnumValueButton",
 	_addEnumValueButtonPath = "AddEnumValueButton";
