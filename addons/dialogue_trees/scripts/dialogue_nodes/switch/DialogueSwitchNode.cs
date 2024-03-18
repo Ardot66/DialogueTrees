@@ -11,7 +11,7 @@ namespace Ardot.DialogueTrees;
 public partial class DialogueSwitchNode : DialogueNodeContainer
 {
 	private const string 
-	_caseTextPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/subscenes/case_text.tscn",
+	_caseTextPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/helper_nodes/case_text.tscn",
 	_elseCaseLabelPath = "Label",
 	_caseTextEditPath = "HBoxContainer/TextEdit",
 	_addCaseButtonPath = "MarginContainer/AddCaseButton",
