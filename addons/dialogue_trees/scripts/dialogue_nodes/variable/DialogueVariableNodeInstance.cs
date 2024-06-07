@@ -44,8 +44,8 @@ public partial class DialogueVariableNodeInstance : DialogueNodeInstance
 		{
 			new(
 				"Enum",
-                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_node_instances/DialogueEnumSetterInstance.cs"),
-                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_node_instances/DialogueEnumConditionInstance.cs")
+                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_subnodes/enum/DialogueEnumSetterInstance.cs"),
+                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_subnodes/enum/DialogueEnumConditionInstance.cs")
 			)
 		};
 	}
