@@ -19,6 +19,7 @@ public partial class DialogueGraph : GraphEdit
 	_fromPort = "from_port",
 	_toNode = "to_node",
 	_toPort = "to_port";
+	private static readonly StringName _connectionLayer = "_connection_layer";
 
 	public EditorUndoRedoManager UndoRedo;
 	public DialogueTreesPlugin Plugin;
@@ -216,14 +217,18 @@ public partial class DialogueGraph : GraphEdit
 
 			loadedNodes.Add(node);
 		}
-			
-		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
+
+		var children = GetChildren()
+			.Where(c => !c.Name.Equals(_connectionLayer))
+			.ToList();
+		var count = treeData.GetConnectionsCount();
+		for(int x = 0; x < count; x++)
 		{
 			DialogueTreeData.Connection con = treeData.GetConnection(x);
 
-			Node fromNode = GetChild(con.FromNode);
-			Node toNode = GetChild(con.ToNode);
-
+			Node fromNode = children.ElementAt(con.FromNode);
+			Node toNode = children.ElementAt(con.ToNode);
+			
 			if(fromNode is not DialogueNode || toNode is not DialogueNode)
 				continue;
 
@@ -239,7 +244,7 @@ public partial class DialogueGraph : GraphEdit
 
 			dialogueNode.GraphReady();
 			dialogueNode.Selected = true;
-		}		
+		}
 
 		_arrangingNodes = true;
 		ArrangeGraph(true);
@@ -249,13 +254,17 @@ public partial class DialogueGraph : GraphEdit
 
 	///<summary>Unloads the given DialogueTreeData and removes all loadedNodes, this is intended only for use with UndoRedo.</summary>
 	public void UnloadTree(DialogueTreeData treeData, Array<Node> loadedNodes)
-	{			
-		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
+	{
+		var children = GetChildren()
+			.Where(c => !c.Name.Equals(_connectionLayer))
+			.ToList();
+		var count = treeData.GetConnectionsCount();
+		for(int x = 0; x < count; x++)
 		{
 			DialogueTreeData.Connection con = treeData.GetConnection(x);
 
-			Node fromNode = GetChild(con.FromNode);
-			Node toNode = GetChild(con.ToNode);
+			Node fromNode = children.ElementAt(con.FromNode);
+			Node toNode = children.ElementAt(con.ToNode);
 
 			if(fromNode is not DialogueNode || toNode is not DialogueNode)
 				continue;
@@ -276,6 +285,10 @@ public partial class DialogueGraph : GraphEdit
 
 		foreach(Node node in GetChildren())
 		{
+			if (node.Name.Equals(_connectionLayer))
+			{
+				continue;
+			}
 			RemoveChild(node);
 			node.QueueFree();
 		}
