@@ -38,6 +38,9 @@ public partial class DialogueGraph : GraphEdit
 	private Button _arrangeSelectedNodesButton;
 	private Button _arrangeAllNodesButton;
 
+	private readonly List<DialogueNode> _dialogueNodes = new ();
+	public IReadOnlyList<DialogueNode> DialogueNodes {get => _dialogueNodes;}
+
 	///<summary>Called directly after a <c>DialogueNode</c> is removed from the graph manually by the user (not when removed by undo-redo). This allows for adding extra undo-redo instructions to the 'Delete Dialogue Nodes' action. <c>CommitAction()</c> is always automatically called with <c>true</c> as its parameter.<para/>
 	///<b>Note:</b> Do not call <c>CreateAction()</c> or <c>CommitAction()</c> with <c>undoRedo</c>, as this will happen automatically.<para/>
 	///<b>Note:</b> There is no non-undo-redo version of this signal, as you can just connect to <c>ChildExitingTree</c>.</summary>
@@ -102,7 +105,7 @@ public partial class DialogueGraph : GraphEdit
 	///<summary>Instantiates and sets up a Dialogue Node. May return null. You must manually call GraphReady() and Load() on the returned node.</summary>
 	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData)
 	{
-		if(GetChildCount(nodeData) >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
+		if(_dialogueNodes.Count >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
 			return null;
 
 		dialogueNode.NodeData = nodeData;
@@ -136,17 +139,17 @@ public partial class DialogueGraph : GraphEdit
 
 		treeData.Clear();
 
-		Array<DialogueNode> childrenToSave = new ();
+		List<DialogueNode> childrenToSave = new ();
 
-		foreach(Node child in GetChildren())
+		foreach(DialogueNode node in _dialogueNodes)
 		{
-			if(child is not DialogueNode dialogueNode || (saveOnlySelected && !dialogueNode.Selected))
+			if(node == null || (saveOnlySelected && !node.Selected))
 				continue;
 
-			childrenToSave.Add(dialogueNode);
+			childrenToSave.Add(node);
 		}
 
-		Array<StringName> nodeTypes = new ();
+		List<StringName> nodeTypes = new ();
 
 		foreach(DialogueNode dialogueNode in childrenToSave)
 		{
@@ -184,7 +187,7 @@ public partial class DialogueGraph : GraphEdit
 	}
 
 	///<summary>Loads a <c>DialogueTreeData</c> into the graph. Allows for passing pre-instantiated <c>DialogueNode</c>s, this is mainly to allow for UndoRedo compatibility.</summary>
-	public Array<Node> LoadTree(DialogueTreeData treeData, bool clearExistingTree = true, Array<Node> preLoadedNodes = null)
+	public Array<DialogueNode> LoadTree(DialogueTreeData treeData, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null)
 	{
 		if(clearExistingTree)
 			ClearTree();
@@ -192,39 +195,27 @@ public partial class DialogueGraph : GraphEdit
 		if(treeData == null)
 			return null;
 
-		Array<Node> loadedNodes = new ();
+		Array<DialogueNode> loadedNodes = new ();
 	
 		if(preLoadedNodes == null)
 			for (int x = 0; x < treeData.DialogueNodeSaveData.Count; x++)
 			{
-				Node node = InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x))) ?? new Node();
-				AddDialogueNode(node, x);
-
-				if(node is DialogueNode dialogueNode)
-					dialogueNode.Load(treeData.DialogueNodeSaveData[x]);
+				DialogueNode node = InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x)));
+				AddDialogueNode(node);
+				node?.Load(treeData.DialogueNodeSaveData[x]);
 			}
 		else
 			for(int x = 0; x < preLoadedNodes.Count; x++)
-				AddDialogueNode(preLoadedNodes[x], x);
-
-		void AddDialogueNode(Node node, int index)
-		{
-			AddChild(node);
-
-			if(!clearExistingTree)
-				MoveChild(node, index);
-
-			loadedNodes.Add(node);
-		}
+				AddDialogueNode(preLoadedNodes[x]);
 			
 		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
 		{
 			DialogueTreeData.Connection con = treeData.GetConnection(x);
 
-			Node fromNode = GetChild(con.FromNode);
-			Node toNode = GetChild(con.ToNode);
+			DialogueNode fromNode = _dialogueNodes[con.FromNode];
+			DialogueNode toNode = _dialogueNodes[con.ToNode];
 
-			if(fromNode is not DialogueNode || toNode is not DialogueNode)
+			if(fromNode == null || toNode == null)
 				continue;
 
 			ConnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
@@ -232,13 +223,13 @@ public partial class DialogueGraph : GraphEdit
 
 		SelectAllNodes(false);
 
-		foreach(Node node in loadedNodes)
+		foreach(DialogueNode node in _dialogueNodes)
 		{
-			if(node is not DialogueNode dialogueNode)
+			if(node == null)
 				continue;
 
-			dialogueNode.GraphReady();
-			dialogueNode.Selected = true;
+			node.GraphReady();
+			node.Selected = true;
 		}		
 
 		_arrangingNodes = true;
@@ -247,17 +238,31 @@ public partial class DialogueGraph : GraphEdit
 		return loadedNodes;
 	}
 
+	public void AddDialogueNode(DialogueNode node)
+	{
+		_dialogueNodes.Add(node);
+
+		if(node != null)
+			AddChild(node);
+	}
+
+	public void RemoveDialogueNode(DialogueNode node)
+	{
+		_dialogueNodes.Remove(node);
+		RemoveChild(node);
+	}
+
 	///<summary>Unloads the given DialogueTreeData and removes all loadedNodes, this is intended only for use with UndoRedo.</summary>
-	public void UnloadTree(DialogueTreeData treeData, Array<Node> loadedNodes)
+	public void UnloadTree(DialogueTreeData treeData, Array<DialogueNode> loadedNodes)
 	{			
 		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
 		{
 			DialogueTreeData.Connection con = treeData.GetConnection(x);
 
-			Node fromNode = GetChild(con.FromNode);
-			Node toNode = GetChild(con.ToNode);
+			DialogueNode fromNode = _dialogueNodes[con.FromNode];
+			DialogueNode toNode = _dialogueNodes[con.ToNode];
 
-			if(fromNode is not DialogueNode || toNode is not DialogueNode)
+			if(fromNode == null || toNode == null)
 				continue;
 
 			DisconnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
@@ -273,9 +278,13 @@ public partial class DialogueGraph : GraphEdit
 			return;
 
 		ClearConnections();
+		_dialogueNodes.Clear();
 
-		foreach(Node node in GetChildren())
+		foreach(DialogueNode node in _dialogueNodes)
 		{
+			if(node == null)
+				continue;
+
 			RemoveChild(node);
 			node.QueueFree();
 		}
@@ -283,12 +292,12 @@ public partial class DialogueGraph : GraphEdit
 
 	public void SelectAllNodes(bool selected = true)
 	{
-		foreach(Node node in GetChildren())
+		foreach(DialogueNode node in _dialogueNodes)
 		{
-			if(node is not DialogueNode dialogueNode)
+			if(node == null)
 				continue;
 
-			dialogueNode.Selected = selected;
+			node.Selected = selected;
 		}
 	}
 
@@ -541,17 +550,6 @@ public partial class DialogueGraph : GraphEdit
 	private void OnDeleteNodeButtonPressed(Variant value)
 	{
 		OnDeleteNodesRequest(new Godot.Collections.Array() {((Node)value).Name});
-	}
-
-	private int GetChildCount(DialogueNodeData dialogueNodeData)
-	{
-		int count = 0;
-
-		foreach(Node child in GetChildren())
-			if(child is DialogueNode dialogueNode && dialogueNode.NodeData == dialogueNodeData)
-				count ++;
-	
-		return count;
 	}
 
 	[System.Flags]
