@@ -60,7 +60,6 @@ public partial class DialogueTreeDock : Control
 	{
 		if(DialogueGraph != null)
 		{
-			DialogueGraph.Reparent(this);
 			DialogueGraph.Visible = false;
 			DialogueGraph.SaveTree(DialogueGraph.TreeData);
 			DialogueGraph.Name = DialogueGraph.DialogueTree.GetInstanceId().ToString();
@@ -68,8 +67,7 @@ public partial class DialogueTreeDock : Control
 
 		if(GetNodeOrNull(newDialogueTree.GetInstanceId().ToString()) is DialogueGraph cachedGraph)
 		{
-			cachedGraph.Reparent(this);
-			cachedGraph.Visible = true;
+			cachedGraph.Visible = cachedGraph.TreeData != null;
 
 			DialogueGraph = cachedGraph;
 		}
@@ -97,9 +95,7 @@ public partial class DialogueTreeDock : Control
 			DialogueGraph = null;
 			Plugin.EditedDialogueTree = null;
 		}
-		else 
-			return;
-
+	
 		RemoveChild(dialogueGraph);
 		dialogueGraph.QueueFree();
 	}	
@@ -177,11 +173,11 @@ public partial class DialogueTreeDock : Control
 					if(CopiedTreeData == null || DialogueGraph == null)
 						break;
 
-					Array<Node> loadedNodes = DialogueGraph.LoadTree(CopiedTreeData, false);
+					Array<DialogueNode> loadedNodes = DialogueGraph.LoadTree(CopiedTreeData, false);
 
 					UndoRedo.CreateAction("Paste Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
-					foreach(Node node in loadedNodes)
+					foreach(DialogueNode node in loadedNodes)
 						UndoRedo.AddDoReference(node);
 
 					UndoRedo.AddDoMethod(DialogueGraph, DialogueGraph.MethodName.LoadTree, CopiedTreeData, false, loadedNodes);
@@ -202,9 +198,9 @@ public partial class DialogueTreeDock : Control
 
 			UndoRedo.CreateAction("Add Dialogue Node", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 			UndoRedo.AddDoReference(dialogueNode);
-			UndoRedo.AddDoMethod(DialogueGraph, Node.MethodName.AddChild, dialogueNode);
+			UndoRedo.AddDoMethod(DialogueGraph, DialogueGraph.MethodName.AddDialogueNode, dialogueNode);
 			UndoRedo.AddDoProperty(dialogueNode, GraphElement.PropertyName.PositionOffset, DialogueGraph.AddNodePosition);
-			UndoRedo.AddUndoMethod(DialogueGraph, Node.MethodName.RemoveChild, dialogueNode);
+			UndoRedo.AddUndoMethod(DialogueGraph, DialogueGraph.MethodName.RemoveDialogueNode, dialogueNode);
 			UndoRedo.CommitAction();
 
 			dialogueNode.GraphReady();
@@ -227,11 +223,11 @@ public partial class DialogueTreeDock : Control
 					return;
 
 				DialogueTreeData loadedTreeData = ResourceLoader.Load<DialogueTreeData>(path);
-				Array<Node> loadedDialogueNodes = DialogueGraph.LoadTree(loadedTreeData, false);
+				Array<DialogueNode> loadedDialogueNodes = DialogueGraph.LoadTree(loadedTreeData, false);
 
 				UndoRedo.CreateAction("Load Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
-				foreach(Node node in loadedDialogueNodes)
+				foreach(DialogueNode node in loadedDialogueNodes)
 					UndoRedo.AddDoReference(node);
 
 				UndoRedo.AddDoMethod(DialogueGraph, DialogueGraph.MethodName.LoadTree, loadedTreeData, false, loadedDialogueNodes);

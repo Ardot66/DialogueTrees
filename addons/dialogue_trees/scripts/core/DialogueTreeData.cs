@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System.Collections.Generic;
 
 namespace Ardot.DialogueTrees;
 
@@ -24,7 +25,7 @@ public partial class DialogueTreeData : Resource
 			return;
 		}
 
-		Array<StringName> nodeTypes = new ();
+		List<StringName> nodeTypes = new ();
 
 		foreach (DialogueNodeData nodeData in settings.DialogueNodeData)
 		{
@@ -58,7 +59,7 @@ public partial class DialogueTreeData : Resource
 	public int GetNodesCount() => _dialogueNodeTypes.Length;
 	public StringName GetNodeType(int nodeIndex) => _dialogueNodeTypeNames[_dialogueNodeTypes[nodeIndex]];
 
-	public void SetNodeTypes(Array<StringName> nodeTypes)
+	public void SetNodeTypes(List<StringName> nodeTypes)
 	{
 		System.Collections.Generic.Dictionary<StringName, int> types = new();
 
@@ -140,19 +141,19 @@ public partial class DialogueTreeData : Resource
 	}
 
 	public readonly struct Connection
+{
+	public Connection(int fromNode, int fromPort, int toNode, int toPort)
 	{
-		public Connection(int fromNode, int fromPort, int toNode, int toPort)
-		{
-			FromNode = fromNode;
-			FromPort = fromPort;
-			ToNode = toNode;
-			ToPort = toPort;
-		}
-
-		public readonly int
-		FromNode,
-		FromPort,
-		ToNode,
-		ToPort;
+		FromNode = fromNode;
+		FromPort = fromPort;
+		ToNode = toNode;
+		ToPort = toPort;
 	}
+
+	public readonly int
+	FromNode,
+	FromPort,
+	ToNode,
+	ToPort;
+}
 }
