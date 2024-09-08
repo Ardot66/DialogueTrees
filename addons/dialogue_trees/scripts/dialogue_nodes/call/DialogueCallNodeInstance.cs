@@ -7,9 +7,9 @@ public partial class DialogueCallNodeInstance : DialogueNodeInstance
 {
     public int ConnectedFunctionIndex;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        ConnectedFunctionIndex = data[0].AsInt32();
+        ConnectedFunctionIndex = data.General[0].AsInt32();
     }
 
     public override void RecievePortInput(int portIndex)

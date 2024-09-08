@@ -23,20 +23,17 @@ public partial class DialogueFunctionNode : DialogueNode
 		_functionNameEdit.EditorLineEditTextChanged += OnFunctionNameChanged;
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		FunctionName = data[0].AsString();
+		FunctionName = data.General[0].AsString();
 
 		_functionNameEdit.InitializeText(FunctionName);
 	}
 
-	public override Array Save()
-	{
-		return new() 
-		{
-			FunctionName
-		};
-	}
+	public override DialogueNodeSaveData Save() => new (
+		new() { FunctionName },
+		null
+	);
 
 	private void OnFunctionNameChanged(EditorLineEdit lineEdit, string newText)
 	{

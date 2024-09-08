@@ -66,30 +66,30 @@ public partial class DialogueVariableNode : DialogueNode
 		UpdateTypeOptionButtonUI();
 	}
 
-	public override Array Save()
-	{
-		return new()
+	public override DialogueNodeSaveData Save() => new (
+		new()
 		{
 			VariableName,
 			VariableType,
 			_variableDefaultValueSetter == null ? default : _variableDefaultValueSetter.GetValue(),
 			_variableDefinition == null ? default : _variableDefinition.GetDefinition(),
-		};
-	}
+		},
+		null
+	);
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		VariableName = data[0].AsStringName();
+		VariableName = data.General[0].AsStringName();
 		_variableNameLineEdit.InitializeText(VariableName);
 
-		VariableType = data[1].AsStringName();
+		VariableType = data.General[1].AsStringName();
 		_typeOptionButton.SelectedObject = VariableType;
 		UpdateTypeOptionButtonUI();
 		
 		LoadVariableUI(InstantiateVariableUI());
 
-		_variableDefinition?.SetDefinition(data[3]);
-		_variableDefaultValueSetter?.SetValue(data[2]);
+		_variableDefinition?.SetDefinition(data.General[3]);
+		_variableDefaultValueSetter?.SetValue(data.General[2]);
 	}
 
 	//NOTE: Let these be defined in project settings for easier access.

@@ -14,7 +14,7 @@ public partial class DialogueCallNode : DialogueNode
 	[Export]
 	private EditorOptionButton _functionSelectButton;
 
-	private int _connectedFunctionID = -1;
+	private long _connectedFunctionID = -1;
 
 	public override void _Ready()
 	{
@@ -33,15 +33,15 @@ public partial class DialogueCallNode : DialogueNode
 		UpdateFunctionsList();
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{	
-		_connectedFunctionID = data[0].AsInt32();
+		_connectedFunctionID = data.References[0];
 	}
 
-	public override Array Save()
-	{
-		return new() {_functionSelectButton.SelectedObject.VariantType == Variant.Type.Object ?((DialogueNode)_functionSelectButton.SelectedObject).ID : -1};
-	}
+	public override DialogueNodeSaveData Save() => new(
+		null,
+		new Array<long>() {_functionSelectButton.SelectedObject.VariantType == Variant.Type.Object ?((DialogueNode)_functionSelectButton.SelectedObject).ID : -1}
+	);
 
 	private void UpdateFunctionsList()
 	{

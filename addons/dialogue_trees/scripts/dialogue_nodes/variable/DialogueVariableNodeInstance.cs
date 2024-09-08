@@ -29,12 +29,12 @@ public partial class DialogueVariableNodeInstance : DialogueNodeInstance
     [Signal]
     public delegate void VariableValueChangingEventHandler(DialogueVariableNodeInstance variableNode, Variant newValue);
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        _variableName = data[0].AsString();
-        _variableType = data[1].AsString();
-        _variableValue = data[2];
-        _variableDefinition = data[3];
+        _variableName = data.General[0].AsString();
+        _variableType = data.General[1].AsString();
+        _variableValue = data.General[2];
+        _variableDefinition = data.General[3];
     }
 
     //NOTE: Let these be defined in project settings for easier access.

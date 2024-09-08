@@ -174,7 +174,7 @@ public partial class DialogueTree : Node
 
 		_dialogueNodeInstances.Add(dialogueNodeInstance);
 
-		dialogueNodeInstance.Ready(TreeData.DialogueNodeSaveData[index]);
+		dialogueNodeInstance.Ready(new DialogueNodeSaveData (TreeData.DialogueNodeSaveData[index], TreeData.DialogueNodeReferences[index]));
 		return dialogueNodeInstance;
 	}
 }

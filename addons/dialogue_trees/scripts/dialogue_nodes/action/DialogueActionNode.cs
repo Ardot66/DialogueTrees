@@ -35,18 +35,15 @@ public partial class DialogueActionNode : DialogueNode
 		UpdateActionsList();
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		_actionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueAction>(data[0].AsNodePath()); 
+		_actionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueAction>(data.General[0].AsNodePath()); 
 	}
 
-	public override Array Save()
-	{
-		return new()
-		{
-			_actionSelectButton.SelectedObject.VariantType != Variant.Type.Nil ? _dialogueTree.GetPathTo((Node)_actionSelectButton.SelectedObject) : null
-		};
-	}
+	public override DialogueNodeSaveData Save() => new (
+		new Array() {_actionSelectButton.SelectedObject.VariantType != Variant.Type.Nil ? _dialogueTree.GetPathTo((Node)_actionSelectButton.SelectedObject) : null},
+		null
+	);
 
 	private void UpdateActionsList()
 	{

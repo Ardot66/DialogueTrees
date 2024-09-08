@@ -12,9 +12,9 @@ public abstract partial class DialogueNodeInstance : GodotObject
 	public long ID;
 
 	///<summary>Called when this instance is created, passes the data saved by this <c>DialogueNodeInstance</c>'s respective <c>DialogueNode</c>.</summary>
-	public virtual void Ready(Array data)
+	public virtual void Ready(DialogueNodeSaveData data)
 	{
-
+		
 	}
 
 	///<summary>Called when this node recieves an input signal from another node.</summary>

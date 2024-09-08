@@ -33,24 +33,22 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 		_addCaseButton.Pressed += OnAddCaseButtonPressed;
 	}
 
-	public override Array Save()
+	public override DialogueNodeSaveData Save()
 	{
-		Array<Node> children = GetChildren();
-
 		string[] caseTexts = new string[_caseTexts.Count];
 
 		for(int x = 0; x < _caseTexts.Count; x++)
 			caseTexts[x] = _caseTexts[x].CaseTextEdit.Text;
 			
-		return new () 
-		{
-			caseTexts
-		};
+		return new (
+			new Array () {caseTexts},
+			null
+		);
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		string[] caseTexts = data[0].AsStringArray();
+		string[] caseTexts = data.General[0].AsStringArray();
 
 		for(int x = 0; x < caseTexts.Length; x++)
 			InsertCase(InstantiateCaseNode(), x, caseTexts[x]);
