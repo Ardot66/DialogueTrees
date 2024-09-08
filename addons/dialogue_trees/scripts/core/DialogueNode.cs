@@ -14,31 +14,17 @@ public abstract partial class DialogueNode : GraphNode
 	private DialogueGraph _dialogueGraph;
 	public DialogueGraph DialogueGraph {get => _dialogueGraph;}
 
-	private long _ID;
-	public long ID {get => _ID;}
-
 	public abstract DialogueNodeSaveData Save();
 	public abstract void Load(DialogueNodeSaveData data);
 
-	public void Setup(DialogueNodeData nodeData, DialogueGraph dialogueGraph, long ID)
+	public void Setup(DialogueNodeData nodeData, DialogueGraph dialogueGraph)
 	{
 		if(NodeData != null)
 			return;
 
 		_nodeData = nodeData;
 		_dialogueGraph = dialogueGraph;
-		_ID = ID;
-		Name = ID.ToString();
 		TooltipText = nodeData.DialogueNodeTooltip;
-	}
-
-	/// <summary>
-	/// Sets the ID of this DialogueNode. <br/>
-	/// <b>Warning:</b> This function should not be used unless you really know what you're doing.
-	/// </summary>
-	public void SetID(long ID)
-	{
-		_ID = ID;
 	}
 
 	///<summary>Called after all <c>DialogueNode</c>s in the tree have been loaded.</summary>
@@ -69,7 +55,7 @@ public readonly struct DialogueNodeSaveData
 	/// </summary>
 	/// <param name="generalData"></param>
 	/// <param name="nodeReferences"></param>
-	public DialogueNodeSaveData(Array generalData, Array<long> nodeReferences)
+	public DialogueNodeSaveData(Array generalData, Array<int> nodeReferences)
 	{
 		General = generalData;
 		References = nodeReferences;
@@ -83,7 +69,7 @@ public readonly struct DialogueNodeSaveData
 	/// <summary>
 	/// Data section specifically for storing reference IDs to other DialogueNodes. IDs must be placed here to be automatically updated.
 	/// </summary>
-	public readonly Array<long> References;
+	public readonly Array<int> References;
 }
 
 # endif

@@ -112,7 +112,7 @@ public partial class DialogueTree : Node
 			return null;
 
 		foreach(DialogueNodeInstance instance in _dialogueNodeInstances)
-			if(instance.ID == ID)
+			if(instance.Index == ID)
 				return instance;
 
 		return InstantiateDialogueNodeInstance(ID);
@@ -170,7 +170,7 @@ public partial class DialogueTree : Node
 		}
 
 		dialogueNodeInstance.DialogueTree = this;
-		dialogueNodeInstance.ID = TreeData.DialogueNodeIDs[index];
+		dialogueNodeInstance.Index = TreeData.DialogueNodeIDs[index];
 
 		_dialogueNodeInstances.Add(dialogueNodeInstance);
 

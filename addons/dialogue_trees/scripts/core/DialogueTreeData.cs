@@ -30,21 +30,18 @@ public partial class DialogueTreeData : Resource
 	
 	private StringName[] _dialogueNodeTypeNames = System.Array.Empty<StringName>();
 	private int[] _dialogueNodeTypes = System.Array.Empty<int>();
-	private long[] _connections = System.Array.Empty<long>();
-	private long[] _dialogueNodeIDs = System.Array.Empty<long>();
+	private int[] _connections = System.Array.Empty<int>();
 	private Array<Godot.Collections.Array> _dialogueNodeSaveData = new ();
-	private Array<Array<long>> _dialogueNodeReferences = new ();
+	private Array<Array<int>> _dialogueNodeReferences = new ();
 
 	public IReadOnlyList<Godot.Collections.Array> DialogueNodeSaveData {get =>_dialogueNodeSaveData;} 
-	public IReadOnlyList<long> DialogueNodeIDs {get => _dialogueNodeIDs;}
-	public IReadOnlyList<Array<long>> DialogueNodeReferences {get => _dialogueNodeReferences;}
+	public IReadOnlyList<Array<int>> DialogueNodeReferences {get => _dialogueNodeReferences;}
 
 	public void Clear()
 	{
 		_dialogueNodeTypeNames = System.Array.Empty<StringName>();
 		_dialogueNodeTypes = System.Array.Empty<int>();
-		_connections = 	System.Array.Empty<long>();
-		_dialogueNodeIDs = System.Array.Empty<long>();
+		_connections = 	System.Array.Empty<int>();
 		_dialogueNodeSaveData.Clear();
 		_dialogueNodeReferences.Clear();
 	}
@@ -60,24 +57,39 @@ public partial class DialogueTreeData : Resource
 	{
 		Clear();
 
-		HashSet<DialogueNode> nodesToSave = new ();
+		System.Collections.Generic.Dictionary<DialogueNode, int> nodesToSave = new ();
 
-		foreach(DialogueNode node in graph.DialogueNodes.Values)
 		{
-			if(nodeMatch != null && !nodeMatch.Invoke(node))
-				continue;
+			int x = 0;
+			foreach(DialogueNode node in graph.DialogueNodes)
+			{
+				if(nodeMatch != null && !nodeMatch.Invoke(node))
+					continue;
 
-			nodesToSave.Add(node);
+				nodesToSave.Add(node, x);
+				x++;
+			}
+		}
+
+		int ConvertReference(int reference)
+		{
+			DialogueNode referenceNode = graph.DialogueNodes[reference];
+			return nodesToSave.TryGetValue(referenceNode, out int referenceInt) ? referenceInt : -1;	
 		}
 
 		{
 			Array<Godot.Collections.Array> dialogueNodeSaveData = new ();
-			Array<Array<long>> dialogueNodeReferences = new ();
+			Array<Array<int>> dialogueNodeReferences = new ();
 
-			foreach(DialogueNode node in nodesToSave)
+			foreach(DialogueNode node in nodesToSave.Keys)
 			{
 				DialogueNodeSaveData saveData = node.Save();
 				dialogueNodeSaveData.Add(saveData.General);
+
+				if(saveData.References != null)
+					for(int x = 0; x < saveData.References.Count; x++)
+						saveData.References[x] = ConvertReference(saveData.References[x]);
+
 				dialogueNodeReferences.Add(saveData.References);
 			}
 
@@ -87,15 +99,13 @@ public partial class DialogueTreeData : Resource
 
 		{
 			int[] nodeTypeIndexes = new int[nodesToSave.Count];
-			long[] nodeIDs = new long[nodesToSave.Count];
 			System.Collections.Generic.Dictionary<StringName, int> types = new();
 
 			int x = 0;
 			int nodeTypeIndexesIndex = 0;
 
-			foreach(DialogueNode node in nodesToSave)
+			foreach(DialogueNode node in nodesToSave.Keys)
 			{
-				nodeIDs[x] = node.ID;
 				StringName type = node.NodeData.DialogueNodeSaveName;
 
 				if(!types.ContainsKey(type))
@@ -110,11 +120,10 @@ public partial class DialogueTreeData : Resource
 
 			_dialogueNodeTypeNames = types.Keys.ToArray();
 			_dialogueNodeTypes = nodeTypeIndexes;
-			_dialogueNodeIDs = nodeIDs;
 		}
 
 		Array<Dictionary> connectionsList = graph.GetConnectionList();
-		List<long> connections = new ();
+		List<int> connections = new ();
 
 		for(int x = 0; x < connectionsList.Count; x++)
 		{
@@ -124,12 +133,12 @@ public partial class DialogueTreeData : Resource
 			fromNode = graph.GetNodeOrNull<DialogueNode>(con[DialogueGraph.FROM_NODE].AsStringName().ToString()),
 			toNode = graph.GetNodeOrNull<DialogueNode>(con[DialogueGraph.TO_NODE].AsStringName().ToString());
 
-			if(fromNode == null || toNode == null || nodeMatch != null && (!nodeMatch.Invoke(fromNode) || !nodeMatch.Invoke(toNode)))
+			if(fromNode == null || toNode == null || nodeMatch != null && nodesToSave.ContainsKey(fromNode) || nodesToSave.ContainsKey(toNode))
 				continue;
 
-			connections.Add(fromNode.ID);
+			connections.Add(ConvertReference(nodesToSave[fromNode]));
 			connections.Add(con[DialogueGraph.FROM_PORT].AsInt32());
-			connections.Add(toNode.ID);
+			connections.Add(ConvertReference(nodesToSave[toNode]));
 			connections.Add(con[DialogueGraph.TO_PORT].AsInt32());
 		}
 
@@ -139,6 +148,7 @@ public partial class DialogueTreeData : Resource
 			ResourceSaver.Save(this, ResourcePath);
 	}
 
+	//Add some kind of out variable that transmits index offset?
 	public Array<DialogueNode> LoadTree(DialogueGraph graph, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null)
 	{
 		if(clearExistingTree)
@@ -163,23 +173,22 @@ public partial class DialogueTreeData : Resource
 			}
 		}
 
-		System.Collections.Generic.Dictionary<long, long> IDConversions = new ();
+		int graphNodeCount = graph.DialogueNodes.Count;
 
-		foreach(long ID in _dialogueNodeIDs)
+		int ConvertIndex(int Index)
 		{
-			if(!clearExistingTree)
-			{
-				IDConversions.Add(ID, graph.Dock.DialogueNodeCount);
-				graph.Dock.IncrementDialogueNodeCount();
-			}
+			if(clearExistingTree)
+				return Index;
+			else if (Index != -1)
+				return Index + graphNodeCount;
 			else
-				IDConversions.Add(ID, ID);
+				return -1;
 		}
 	
 		if(preLoadedNodes == null)
 			for (int x = 0; x < _dialogueNodeSaveData.Count; x++)
 			{
-				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)), IDConversions[_dialogueNodeIDs[x]]);
+				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)));
 
 				if(node == null)
 					continue;
@@ -187,13 +196,10 @@ public partial class DialogueTreeData : Resource
 				loadedNodes.Add(node);
 				graph.AddDialogueNode(node);
 
-				Array<long> dialogueNodeReferences = _dialogueNodeReferences[x].Duplicate();
+				Array<int> dialogueNodeReferences = _dialogueNodeReferences[x].Duplicate();
 
 				for(int y = 0; y < dialogueNodeReferences.Count; y++)
-					if(IDConversions.ContainsKey(dialogueNodeReferences[y]))
-						dialogueNodeReferences[y] = IDConversions[dialogueNodeReferences[y]];
-					else
-						dialogueNodeReferences[y] = -1;
+					dialogueNodeReferences[y] = ConvertIndex(dialogueNodeReferences[y]);
 
 				node.Load(new DialogueNodeSaveData(
 					_dialogueNodeSaveData[x],
@@ -207,7 +213,7 @@ public partial class DialogueTreeData : Resource
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
 			Connection con = GetConnection(x);
-			graph.ConnectNode(graph.DialogueNodes[IDConversions[con.FromNode]].Name, con.FromPort, graph.DialogueNodes[IDConversions[con.ToNode]].Name, con.ToPort);
+			graph.ConnectNode(graph.DialogueNodes[ConvertIndex(con.FromNode)].Name, con.FromPort, graph.DialogueNodes[ConvertIndex(con.ToNode)].Name, con.ToPort);
 		}
 
 		graph.SelectAllNodes(false);
@@ -224,9 +230,10 @@ public partial class DialogueTreeData : Resource
 		return loadedNodes;
 	}
 
+	//Implement IDOffset correctly
 
 	///<summary>Unloads the given DialogueTreeData and removes all loadedNodes, this is intended only for use with UndoRedo.</summary>
-	public void UnloadTree(DialogueGraph graph, Array<DialogueNode> loadedNodes)
+	public void UnloadTree(DialogueGraph graph, Array<DialogueNode> loadedNodes, int IDOffset)
 	{			
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
@@ -269,13 +276,7 @@ public partial class DialogueTreeData : Resource
 			new ()
 			{
 				{"name", PropertyName._connections},
-				{"type", (int)Variant.Type.PackedInt64Array},
-				{"usage", (int)PropertyUsageFlags.Storage}
-			},
-			new ()
-			{
-				{"name", PropertyName._dialogueNodeIDs},
-				{"type", (int)Variant.Type.PackedInt64Array},
+				{"type", (int)Variant.Type.PackedInt32Array},
 				{"usage", (int)PropertyUsageFlags.Storage}
 			},
 			new ()
@@ -295,7 +296,7 @@ public partial class DialogueTreeData : Resource
 
 	public readonly struct Connection
 {
-	public Connection(long fromNode, int fromPort, long toNode, int toPort)
+	public Connection(int fromNode, int fromPort, int toNode, int toPort)
 	{
 		FromNode = fromNode;
 		FromPort = fromPort;
@@ -305,9 +306,7 @@ public partial class DialogueTreeData : Resource
 
 	public readonly int
 	FromPort,
-	ToPort;
-
-	public readonly long
+	ToPort,
 	FromNode,
 	ToNode;
 }

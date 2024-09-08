@@ -44,8 +44,8 @@ public partial class DialogueGraph : GraphEdit
 	private Button _arrangeSelectedNodesButton;
 	private Button _arrangeAllNodesButton;
 
-	private Godot.Collections.Dictionary<long, DialogueNode> _dialogueNodes = new ();
-	public IReadOnlyDictionary<long, DialogueNode> DialogueNodes {get => _dialogueNodes;}
+	private Array<DialogueNode> _dialogueNodes = new (); 
+	public IReadOnlyList<DialogueNode> DialogueNodes {get => _dialogueNodes;}
 
 	///<summary>Called directly after a <c>DialogueNode</c> is removed from the graph manually by the user (not when removed by undo-redo). This allows for adding extra undo-redo instructions to the 'Delete Dialogue Nodes' action. <c>CommitAction()</c> is always automatically called with <c>true</c> as its parameter.<para/>
 	///<b>Note:</b> Do not call <c>CreateAction()</c> or <c>CommitAction()</c> with <c>undoRedo</c>, as this will happen automatically.<para/>
@@ -95,6 +95,11 @@ public partial class DialogueGraph : GraphEdit
 		Visible = TreeData != null;
 	}
 
+	public int GetDialogueNodeIndex(DialogueNode dialogueNode)
+	{
+		return _dialogueNodes.IndexOf(dialogueNode);
+	}
+
 	public override void _GuiInput(InputEvent @event)
 	{
 		if(@event is InputEventMouse mouse && mouse.ButtonMask.HasFlag(MouseButtonMask.Right))
@@ -109,15 +114,12 @@ public partial class DialogueGraph : GraphEdit
 	}
 
 	///<summary>Instantiates and sets up a Dialogue Node. May return null. You must manually call GraphReady() and Load() on the returned node.</summary>
-	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData, long? ID = null)
+	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData)
 	{
 		if(_dialogueNodes.Count >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
 			return null;
 
-		dialogueNode.Setup(nodeData, this, ID ?? Dock.DialogueNodeCount);
-
-		if(!ID.HasValue)
-			Dock.IncrementDialogueNodeCount();
+		dialogueNode.Setup(nodeData, this);
 
 		HBoxContainer titlebarHBox = dialogueNode.GetTitlebarHBox();
 		ValueButton deleteNodeButton = _deleteDialogueNodeButtonScene.Instantiate<ValueButton>();
@@ -141,7 +143,7 @@ public partial class DialogueGraph : GraphEdit
 
 	public void AddDialogueNode(DialogueNode node)
 	{
-		_dialogueNodes.Add(node.ID, node);
+		_dialogueNodes.Add(node);
 
 		if(node != null)
 			AddChild(node);
@@ -149,7 +151,7 @@ public partial class DialogueGraph : GraphEdit
 
 	public void RemoveDialogueNode(DialogueNode node)
 	{
-		_dialogueNodes.Remove(node.ID);
+		_dialogueNodes.Remove(node);
 		RemoveChild(node);
 	}
 
@@ -160,7 +162,7 @@ public partial class DialogueGraph : GraphEdit
 
 		ClearConnections();
 
-		foreach(DialogueNode node in _dialogueNodes.Values)
+		foreach(DialogueNode node in _dialogueNodes)
 		{
 			RemoveChild(node);
 			node.QueueFree();
@@ -171,7 +173,7 @@ public partial class DialogueGraph : GraphEdit
 
 	public void SelectAllNodes(bool selected = true)
 	{
-		foreach(DialogueNode node in _dialogueNodes.Values)
+		foreach(DialogueNode node in _dialogueNodes)
 			node.Selected = selected;
 	}
 
