@@ -13,11 +13,11 @@ public partial class DialogueVariableSetterNodeInstance : DialogueNodeInstance
 
     public override void Ready(Array data)
     {
-        int variableNodeIndex = data[0].AsInt32();
+        long variableNodeID = data[0].AsInt64();
 
-        if(variableNodeIndex != -1)
+        if(variableNodeID != -1)
         {
-            _variableNode = DialogueTree.GetDialogueNodeInstance<DialogueVariableNodeInstance>(variableNodeIndex);
+            _variableNode = DialogueTree.GetDialogueNodeInstance<DialogueVariableNodeInstance>(variableNodeID);
 
             DialogueVariableNodeInstance.VariableInstanceData variableData = _variableNode.GetVariableDataForType(_variableNode.VariableType);
 

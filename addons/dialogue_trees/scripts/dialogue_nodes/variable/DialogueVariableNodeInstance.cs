@@ -37,6 +37,8 @@ public partial class DialogueVariableNodeInstance : DialogueNodeInstance
         _variableDefinition = data[3];
     }
 
+    //NOTE: Let these be defined in project settings for easier access.
+
     ///<summary>Returns a list of data about how different variables should be defined.</summary>
 	public virtual VariableInstanceData[] GetVariableDataList()
 	{
@@ -44,8 +46,8 @@ public partial class DialogueVariableNodeInstance : DialogueNodeInstance
 		{
 			new(
 				"Enum",
-                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_node_instances/DialogueEnumSetterInstance.cs"),
-                ResourceLoader.Load<Script>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scripts/variable_node_instances/DialogueEnumConditionInstance.cs")
+                ResourceLoader.Load<Script>("addons/dialogue_trees/scripts/variable_node_instances/DialogueEnumSetterInstance.cs"),
+                ResourceLoader.Load<Script>("addons/dialogue_trees/scripts/variable_node_instances/DialogueEnumConditionInstance.cs")
 			)
 		};
 	}

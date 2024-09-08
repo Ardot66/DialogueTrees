@@ -1,10 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8f83261mrwrk"]
+[gd_scene load_steps=8 format=3 uid="uid://c8f83261mrwrk"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/variable/DialogueVariableNode.cs" id="1_4dkm6"]
+[ext_resource type="PackedScene" uid="uid://bw4p0myl4v3fe" path="res://addons/dialogue_trees/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_default_value_setter.tscn" id="2_485wv"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_gu8gp"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorLineEdit.cs" id="2_r3jah"]
+[ext_resource type="PackedScene" uid="uid://l8cx82csmogw" path="res://addons/dialogue_trees/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_definition.tscn" id="3_n8bhn"]
+[ext_resource type="PackedScene" uid="uid://cckx6dlxdbmsj" path="res://addons/dialogue_trees/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_setter.tscn" id="4_kamr5"]
+[ext_resource type="PackedScene" uid="uid://d38dqvkl8w04y" path="res://addons/dialogue_trees/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_condition.tscn" id="5_6fnsj"]
 
-[node name="DialogueVariableNode" type="GraphNode"]
+[node name="DialogueVariableNode" type="GraphNode" node_paths=PackedStringArray("_typeOptionButton", "_variableNameLineEdit")]
 custom_minimum_size = Vector2(200, 0)
 offset_right = 9.0
 offset_bottom = 55.0
@@ -64,6 +68,12 @@ slot/5/right_color = Color(1, 1, 1, 1)
 slot/5/right_icon = null
 slot/5/draw_stylebox = true
 script = ExtResource("1_4dkm6")
+_typeOptionButton = NodePath("TypeOptionButton")
+_variableNameLineEdit = NodePath("VariableNameLineEdit")
+_dialogueEnumDefaultValueSetterScene = ExtResource("2_485wv")
+_dialogueEnumDefinitionScene = ExtResource("3_n8bhn")
+_dialogueEnumSetterScene = ExtResource("4_kamr5")
+_dialogueEnumCondtion = ExtResource("5_6fnsj")
 
 [node name="Control" type="Control" parent="."]
 custom_minimum_size = Vector2(0, 10)
@@ -83,10 +93,9 @@ text = "Type:"
 
 [node name="TypeOptionButton" type="OptionButton" parent="."]
 layout_mode = 2
-item_count = 2
 fit_to_longest_item = false
+item_count = 2
 popup/item_0/text = "None"
-popup/item_0/id = 0
 popup/item_1/text = "Enum"
 popup/item_1/id = 1
 script = ExtResource("2_gu8gp")

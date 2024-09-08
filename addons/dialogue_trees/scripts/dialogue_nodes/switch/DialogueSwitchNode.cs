@@ -1,5 +1,6 @@
 # if TOOLS
 
+using System.Collections.Generic;
 using System.Linq;
 using Ardot.DialogueTrees.DialogueNodes;
 using Godot;
@@ -10,12 +11,11 @@ namespace Ardot.DialogueTrees;
 [Tool]
 public partial class DialogueSwitchNode : DialogueNodeContainer
 {
-	private const string 
-	_caseTextPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/helper_nodes/case_text.tscn",
-	_elseCaseLabelPath = "Label",
-	_caseTextEditPath = "HBoxContainer/TextEdit",
-	_addCaseButtonPath = "MarginContainer/AddCaseButton",
-	_removeCaseButtonPath = "HBoxContainer/Button";
+	[Export]
+	private PackedScene _caseTextScene;
+
+	[Export]
+	private Label _elseCaseLabel;
 
 	private const int 
 	_extraChildrenCount = 2;
@@ -23,13 +23,13 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 	private static Color InputSlotColor {get => Color.FromString("White", default);}
 	private static Color OutputSlotColor {get => Color.FromString("White", default);}
 
+	[Export]
 	private Button _addCaseButton;
-	private int _caseCount;
+
+	private List<DialogueSwitchNodeCaseText> _caseTexts = new ();
 
 	public override void _Ready()
 	{
-		_addCaseButton = GetNode<Button>(_addCaseButtonPath);
- 
 		_addCaseButton.Pressed += OnAddCaseButtonPressed;
 	}
 
@@ -37,11 +37,11 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 	{
 		Array<Node> children = GetChildren();
 
-		string[] caseTexts = new string[children.Count - _extraChildrenCount];
+		string[] caseTexts = new string[_caseTexts.Count];
 
-		for(int x = 0; x < children.Count - _extraChildrenCount; x++)
-			caseTexts[x] = children[x].GetNode<TextEdit>(_caseTextEditPath).Text;
-
+		for(int x = 0; x < _caseTexts.Count; x++)
+			caseTexts[x] = _caseTexts[x].CaseTextEdit.Text;
+			
 		return new () 
 		{
 			caseTexts
@@ -56,10 +56,10 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 			InsertCase(InstantiateCaseNode(), x, caseTexts[x]);
 	}
 
-	private void InsertCase(Control caseNode, int index, string caseText = "", RemovedCaseData caseData = null)
+	private void InsertCase(DialogueSwitchNodeCaseText caseNode, int index, string caseText = "", RemovedCaseData caseData = null)
 	{
-		ValueButton removeCaseButton = caseNode.GetNode<ValueButton>(_removeCaseButtonPath);
-		EditorTextEdit caseTextEdit = caseNode.GetNode<EditorTextEdit>(_caseTextEditPath);
+		ValueButton removeCaseButton = caseNode.RemoveCaseButton;
+		EditorTextEdit caseTextEdit = caseNode.CaseTextEdit;
 
 		if(caseData == null)
 		{
@@ -80,43 +80,38 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 			caseTextEdit.InitializeText(caseData.RemovedCaseText);
 		}
 
-		if(_caseCount == 0)
+		if(_caseTexts.Count == 0)
 		{
-			Label elseCaseLabel = GetNode<Label>(_elseCaseLabelPath);
-			elseCaseLabel.Visible = true;
+			_elseCaseLabel.Visible = true;
 
 			SetSlot(0, true, 0, InputSlotColor, true, 0, OutputSlotColor);
 			SetSlot(1, false, 0, InputSlotColor, true, 0, OutputSlotColor);
 		}
 
-		_caseCount++;
+		_caseTexts.Insert(index, caseNode);
 	}
 
-	private RemovedCaseData RemoveCase(Control caseNode)
+	private RemovedCaseData RemoveCase(DialogueSwitchNodeCaseText caseNode)
 	{
 		Array<Dictionary> removedConnections = new ();
 
-		if(_caseCount == 1)
+		if(_caseTexts.Count == 1)
 		{
-			Label elseCaseLabel = GetNode<Label>(_elseCaseLabelPath);
-			elseCaseLabel.Visible = false;
+			_elseCaseLabel.Visible = false;
 
 			removedConnections = RemovePort(1).RemovedConnections;
 
 			SetSlot(1, false, 0, InputSlotColor, false, 0, OutputSlotColor);
 		}
 
-		ValueButton removeCaseButton = caseNode.GetNode<ValueButton>(_removeCaseButtonPath);
-		EditorTextEdit caseTextEdit = caseNode.GetNode<EditorTextEdit>(_caseTextEditPath);
+		caseNode.CaseTextEdit.EditorTextEditTextChanged -= OnCaseTextChanged;
+		caseNode.RemoveCaseButton.ValueButtonPressed -= OnRemoveCaseButtonPressed;
 
-		caseTextEdit.EditorTextEditTextChanged -= OnCaseTextChanged;
-		removeCaseButton.ValueButtonPressed -= OnRemoveCaseButtonPressed;
-
-		RemovedCaseData removedPortData = new(RemoveControlChild(caseNode, _caseCount == 1 ? DialogueGraph.SlotType.Any : DialogueGraph.SlotType.OutPort), caseTextEdit.Text);
+		RemovedCaseData removedPortData = new(RemoveControlChild(caseNode, _caseTexts.Count == 1 ? DialogueGraph.SlotType.Any : DialogueGraph.SlotType.OutPort), caseNode.CaseTextEdit.Text);
 
 		removedPortData.RemovedConnections.AddRange(removedConnections);
 
-		_caseCount--;
+		_caseTexts.Remove(caseNode);
 
 		return removedPortData;
 	}
@@ -131,9 +126,9 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 		EditorUndoRedoManager undoRedo = GetUndoRedo();
 		undoRedo.CreateAction("Add Switch Case", UndoRedo.MergeMode.Disable, GetDialogueTree());
 		
-		Control caseNode = InstantiateCaseNode();
+		DialogueSwitchNodeCaseText caseNode = InstantiateCaseNode();
 
-		undoRedo.AddDoMethod(this, MethodName.InsertCase, caseNode, _caseCount, "", default);
+		undoRedo.AddDoMethod(this, MethodName.InsertCase, caseNode, _caseTexts.Count, "", default);
 		undoRedo.AddUndoMethod(this, MethodName.RemoveCase, caseNode);
 
 		undoRedo.CommitAction();
@@ -144,7 +139,7 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 		EditorUndoRedoManager undoRedo = GetUndoRedo();
 		undoRedo.CreateAction("Remove Switch Case", UndoRedo.MergeMode.Disable, GetDialogueTree());
 
-		Control caseNode = (Control)value.AsGodotObject();
+		DialogueSwitchNodeCaseText caseNode = (DialogueSwitchNodeCaseText)value.AsGodotObject();
 		int caseIndex = caseNode.GetIndex();
 
 		RemovedCaseData caseData = RemoveCase(caseNode);
@@ -157,9 +152,9 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 		undoRedo.CommitAction(false);
 	}
 
-	private static Control InstantiateCaseNode()
+	private DialogueSwitchNodeCaseText InstantiateCaseNode()
 	{
-		return ResourceLoader.Load<PackedScene>(_caseTextPath).Instantiate<Control>();
+		return _caseTextScene.Instantiate<DialogueSwitchNodeCaseText>();
 	}
 
 	public partial class RemovedCaseData : RemovedPortData

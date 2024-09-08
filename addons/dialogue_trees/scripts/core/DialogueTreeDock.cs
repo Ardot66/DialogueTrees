@@ -9,8 +9,8 @@ namespace Ardot.DialogueTrees;
 [Tool]
 public partial class DialogueTreeDock : Control
 {
-	private const string 
-	_dialogueGraphScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/editor/dialogue_graph.tscn";
+	[Export]
+	private PackedScene _dialogueGraphScene;
 
 	public DialogueTreesPlugin Plugin;
 	public EditorUndoRedoManager UndoRedo;
@@ -21,6 +21,9 @@ public partial class DialogueTreeDock : Control
 	public bool DockVisible;
 
 	public bool DockFocused {get => GetRect().HasPoint(GetLocalMousePosition()) && DockVisible && Visible;}
+
+	private long _dialogueNodeCount;
+	public long DialogueNodeCount {get => _dialogueNodeCount;}
 
 	public DialogueTreeData CopiedTreeData;
 
@@ -42,18 +45,14 @@ public partial class DialogueTreeDock : Control
 		LoadCreateNodePopup();
 	}
 
-	public override void _GuiInput(InputEvent @event)
+	public void IncrementDialogueNodeCount()
 	{
-		// if(@event is InputEventKey input)
-		// {
-		// 	input.
-		// 	input.Keycode == Key.
-		// }
+		_dialogueNodeCount++;
 	}
 
 	public void SaveTree()
 	{
-		DialogueGraph?.SaveTree(DialogueGraph.TreeData);
+		DialogueGraph?.TreeData?.SaveTree(DialogueGraph, false);
 	}	
 
 	public void LoadTree(DialogueTree newDialogueTree)
@@ -61,7 +60,7 @@ public partial class DialogueTreeDock : Control
 		if(DialogueGraph != null)
 		{
 			DialogueGraph.Visible = false;
-			DialogueGraph.SaveTree(DialogueGraph.TreeData);
+			DialogueGraph?.TreeData?.SaveTree(DialogueGraph, false);
 			DialogueGraph.Name = DialogueGraph.DialogueTree.GetInstanceId().ToString();
 		}
 
@@ -73,13 +72,13 @@ public partial class DialogueTreeDock : Control
 		}
 		else
 		{
-			DialogueGraph newDialogueGraph = ResourceLoader.Load<PackedScene>(_dialogueGraphScenePath).Instantiate<DialogueGraph>();
+			DialogueGraph newDialogueGraph = _dialogueGraphScene.Instantiate<DialogueGraph>();
 			newDialogueGraph.DialogueTree = newDialogueTree;
 
 			AddChild(newDialogueGraph);
 			newDialogueGraph.PluginReady(Plugin);
 				
-			newDialogueGraph.LoadTree(newDialogueTree.TreeData);
+			newDialogueGraph.TreeData?.LoadTree(newDialogueGraph, false);
 
 			DialogueGraph = newDialogueGraph;
 		}
@@ -167,21 +166,21 @@ public partial class DialogueTreeDock : Control
 					break;
 				case "CS":
 					CopiedTreeData = new ();
-					DialogueGraph?.SaveTree(CopiedTreeData, true);
+					CopiedTreeData.SaveTree(DialogueGraph, true, (DialogueNode node) => node.Selected);
 					break;
 				case "P":
 					if(CopiedTreeData == null || DialogueGraph == null)
 						break;
 
-					Array<DialogueNode> loadedNodes = DialogueGraph.LoadTree(CopiedTreeData, false);
+					Array<DialogueNode> loadedNodes = CopiedTreeData.LoadTree(DialogueGraph, false);
 
 					UndoRedo.CreateAction("Paste Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
 					foreach(DialogueNode node in loadedNodes)
 						UndoRedo.AddDoReference(node);
 
-					UndoRedo.AddDoMethod(DialogueGraph, DialogueGraph.MethodName.LoadTree, CopiedTreeData, false, loadedNodes);
-					UndoRedo.AddUndoMethod(DialogueGraph, DialogueGraph.MethodName.UnloadTree, CopiedTreeData, loadedNodes);
+					UndoRedo.AddDoMethod(CopiedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, false, loadedNodes);
+					UndoRedo.AddUndoMethod(CopiedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedNodes);
 					UndoRedo.CommitAction(false);
 					break;
 			}
@@ -213,7 +212,7 @@ public partial class DialogueTreeDock : Control
 		{
 			case EditorFileDialog.FileModeEnum.SaveFile:
 				DialogueTreeData treeData = ResourceLoader.Exists(path, typeof(DialogueTreeData).ToString()) ? ResourceLoader.Load<DialogueTreeData>(path) : new ();
-				DialogueGraph.SaveTree(treeData, true);
+				treeData.SaveTree(DialogueGraph, true, (DialogueNode node) => node.Selected);
 
 				ResourceSaver.Save(treeData, path, ResourceSaver.SaverFlags.ChangePath);
 				break;
@@ -223,15 +222,15 @@ public partial class DialogueTreeDock : Control
 					return;
 
 				DialogueTreeData loadedTreeData = ResourceLoader.Load<DialogueTreeData>(path);
-				Array<DialogueNode> loadedDialogueNodes = DialogueGraph.LoadTree(loadedTreeData, false);
+				Array<DialogueNode> loadedDialogueNodes = loadedTreeData.LoadTree(DialogueGraph, false);
 
 				UndoRedo.CreateAction("Load Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
 				foreach(DialogueNode node in loadedDialogueNodes)
 					UndoRedo.AddDoReference(node);
 
-				UndoRedo.AddDoMethod(DialogueGraph, DialogueGraph.MethodName.LoadTree, loadedTreeData, false, loadedDialogueNodes);
-				UndoRedo.AddUndoMethod(DialogueGraph, DialogueGraph.MethodName.UnloadTree, loadedTreeData, loadedDialogueNodes);
+				UndoRedo.AddDoMethod(loadedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, loadedDialogueNodes);
+				UndoRedo.AddUndoMethod(loadedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedDialogueNodes);
 				UndoRedo.CommitAction(false);
 				break;
 		}

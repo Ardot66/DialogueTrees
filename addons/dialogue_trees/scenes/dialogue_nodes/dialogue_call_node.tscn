@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/call/DialogueCallNode.cs" id="1_bjcim"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_04os6"]
 
-[node name="DialogueCallNode" type="GraphNode"]
+[node name="DialogueCallNode" type="GraphNode" node_paths=PackedStringArray("_functionSelectButton")]
 custom_minimum_size = Vector2(150, 0)
 offset_right = 9.0
 offset_bottom = 55.0
@@ -18,6 +18,7 @@ slot/0/right_color = Color(1, 1, 1, 1)
 slot/0/right_icon = null
 slot/0/draw_stylebox = true
 script = ExtResource("1_bjcim")
+_functionSelectButton = NodePath("MarginContainer/FunctionSelectButton")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2

@@ -11,14 +11,20 @@ namespace Ardot.DialogueTrees;
 [Tool]
 public partial class DialogueGraph : GraphEdit
 {
-	private const string 
-	_arrangeNodesButtonScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/editor/arrange_nodes_button.tscn",
-	_deleteDialogueNodeButtonScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/editor/delete_dialogue_node_button.tscn",
-	_dialogueGraphAddNodeButtonScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/editor/dialogue_graph_add_node_button.tscn",
-	_fromNode = "from_node",
-	_fromPort = "from_port",
-	_toNode = "to_node",
-	_toPort = "to_port";
+	[Export]
+	private PackedScene _arrangeNodeButtonScene;
+
+	[Export]
+	private PackedScene _deleteDialogueNodeButtonScene;
+
+	[Export]
+	private PackedScene _dialogueGraphAddNodeButtonScene;
+
+	public const string 
+	FROM_NODE = "from_node",
+	FROM_PORT = "from_port",
+	TO_NODE = "to_node",
+	TO_PORT = "to_port";
 
 	public EditorUndoRedoManager UndoRedo;
 	public DialogueTreesPlugin Plugin;
@@ -32,14 +38,14 @@ public partial class DialogueGraph : GraphEdit
 
 	private Vector2[] _childPositions;
 
-	private bool _arrangingNodes;
+	public bool ArrangingNodes;
 
 	private Button _addNodeButton;
 	private Button _arrangeSelectedNodesButton;
 	private Button _arrangeAllNodesButton;
 
-	private readonly List<DialogueNode> _dialogueNodes = new ();
-	public IReadOnlyList<DialogueNode> DialogueNodes {get => _dialogueNodes;}
+	private System.Collections.Generic.Dictionary<long, DialogueNode> _dialogueNodes = new ();
+	public IReadOnlyDictionary<long, DialogueNode> DialogueNodes {get => _dialogueNodes;}
 
 	///<summary>Called directly after a <c>DialogueNode</c> is removed from the graph manually by the user (not when removed by undo-redo). This allows for adding extra undo-redo instructions to the 'Delete Dialogue Nodes' action. <c>CommitAction()</c> is always automatically called with <c>true</c> as its parameter.<para/>
 	///<b>Note:</b> Do not call <c>CreateAction()</c> or <c>CommitAction()</c> with <c>undoRedo</c>, as this will happen automatically.<para/>
@@ -54,9 +60,9 @@ public partial class DialogueGraph : GraphEdit
 		Dock = Plugin.Dock;
 
 		HBoxContainer graphMenu = GetMenuHBox();
-		Node addNodeButtonContainer = ResourceLoader.Load<PackedScene>(_dialogueGraphAddNodeButtonScenePath).Instantiate();
+		Node addNodeButtonContainer = _dialogueGraphAddNodeButtonScene.Instantiate();
 		_addNodeButton = addNodeButtonContainer.GetNode<Button>("Button");
-		Node arrangeNodesButtonContainer = ResourceLoader.Load<PackedScene>(_arrangeNodesButtonScenePath).Instantiate();
+		Node arrangeNodesButtonContainer = _arrangeNodeButtonScene.Instantiate();
 		_arrangeSelectedNodesButton = arrangeNodesButtonContainer.GetNode<Button>("ArrangeSelectedButton");
 		_arrangeAllNodesButton = arrangeNodesButtonContainer.GetNode<Button>("ArrangeAllButton");
 
@@ -103,17 +109,18 @@ public partial class DialogueGraph : GraphEdit
 	}
 
 	///<summary>Instantiates and sets up a Dialogue Node. May return null. You must manually call GraphReady() and Load() on the returned node.</summary>
-	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData)
+	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData, long? ID = null)
 	{
 		if(_dialogueNodes.Count >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
 			return null;
 
-		dialogueNode.NodeData = nodeData;
-		dialogueNode.TooltipText = nodeData.DialogueNodeTooltip;
-		dialogueNode.DialogueGraph = this;
+		dialogueNode.Setup(nodeData, this, ID ?? Dock.DialogueNodeCount);
+
+		if(!ID.HasValue)
+			Dock.IncrementDialogueNodeCount();
 
 		HBoxContainer titlebarHBox = dialogueNode.GetTitlebarHBox();
-		ValueButton deleteNodeButton = ResourceLoader.Load<PackedScene>(_deleteDialogueNodeButtonScenePath).Instantiate<ValueButton>();
+		ValueButton deleteNodeButton = _deleteDialogueNodeButtonScene.Instantiate<ValueButton>();
 
 		deleteNodeButton.Value = dialogueNode;
 		deleteNodeButton.ValueButtonPressed += OnDeleteNodeButtonPressed;
@@ -124,123 +131,17 @@ public partial class DialogueGraph : GraphEdit
 
 	public void DisconnectNode(Dictionary connection)
 	{
-		DisconnectNode(connection[_fromNode].AsStringName(), connection[_fromPort].AsInt32(), connection[_toNode].AsStringName(), connection[_toPort].AsInt32());
+		DisconnectNode(connection[FROM_NODE].AsStringName(), connection[FROM_PORT].AsInt32(), connection[TO_NODE].AsStringName(), connection[TO_PORT].AsInt32());
 	}
 
 	public void ConnectNode(Dictionary connection)
 	{
-		ConnectNode(connection[_fromNode].AsStringName(), connection[_fromPort].AsInt32(), connection[_toNode].AsStringName(), connection[_toPort].AsInt32());
-	}
-
-	public void SaveTree(DialogueTreeData treeData, bool saveOnlySelected = false)
-	{
-		if(treeData == null)
-			return;
-
-		treeData.Clear();
-
-		List<DialogueNode> childrenToSave = new ();
-
-		foreach(DialogueNode node in _dialogueNodes)
-		{
-			if(node == null || (saveOnlySelected && !node.Selected))
-				continue;
-
-			childrenToSave.Add(node);
-		}
-
-		List<StringName> nodeTypes = new ();
-
-		foreach(DialogueNode dialogueNode in childrenToSave)
-		{
-			nodeTypes.Add(dialogueNode.NodeData.DialogueNodeSaveName);
-			treeData.DialogueNodeSaveData.Add(dialogueNode.Save());
-		}
-
-		treeData.SetNodeTypes(nodeTypes);
-
-		Array<Dictionary> connectionsList = GetConnectionList();
-		List<DialogueTreeData.Connection> connections = new ();
-
-		for(int x = 0; x < connectionsList.Count; x++)
-		{
-			Dictionary con = connectionsList[x];
-
-			int
-			fromNode = childrenToSave.IndexOf(GetNodeOrNull<DialogueNode>(con[_fromNode].AsStringName().ToString())),
-			toNode = childrenToSave.IndexOf(GetNodeOrNull<DialogueNode>(con[_toNode].AsStringName().ToString()));
-
-			if(fromNode != -1 && toNode != -1)
-				connections.Add(new DialogueTreeData.Connection
-				(
-					fromNode,
-					con[_fromPort].AsInt32(),
-					toNode,
-					con[_toPort].AsInt32()
-				));
-		}
-
-		treeData.SetConnections(connections.ToArray());
-
-		if(!string.IsNullOrEmpty(treeData.ResourcePath))
-			ResourceSaver.Save(treeData, treeData.ResourcePath);
-	}
-
-	///<summary>Loads a <c>DialogueTreeData</c> into the graph. Allows for passing pre-instantiated <c>DialogueNode</c>s, this is mainly to allow for UndoRedo compatibility.</summary>
-	public Array<DialogueNode> LoadTree(DialogueTreeData treeData, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null)
-	{
-		if(clearExistingTree)
-			ClearTree();
-
-		if(treeData == null)
-			return null;
-
-		Array<DialogueNode> loadedNodes = new ();
-	
-		if(preLoadedNodes == null)
-			for (int x = 0; x < treeData.DialogueNodeSaveData.Count; x++)
-			{
-				DialogueNode node = InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x)));
-				AddDialogueNode(node);
-				node?.Load(treeData.DialogueNodeSaveData[x]);
-			}
-		else
-			for(int x = 0; x < preLoadedNodes.Count; x++)
-				AddDialogueNode(preLoadedNodes[x]);
-			
-		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
-		{
-			DialogueTreeData.Connection con = treeData.GetConnection(x);
-
-			DialogueNode fromNode = _dialogueNodes[con.FromNode];
-			DialogueNode toNode = _dialogueNodes[con.ToNode];
-
-			if(fromNode == null || toNode == null)
-				continue;
-
-			ConnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
-		}
-
-		SelectAllNodes(false);
-
-		foreach(DialogueNode node in _dialogueNodes)
-		{
-			if(node == null)
-				continue;
-
-			node.GraphReady();
-			node.Selected = true;
-		}		
-
-		_arrangingNodes = true;
-		ArrangeGraph(true);
-
-		return loadedNodes;
+		ConnectNode(connection[FROM_NODE].AsStringName(), connection[FROM_PORT].AsInt32(), connection[TO_NODE].AsStringName(), connection[TO_PORT].AsInt32());
 	}
 
 	public void AddDialogueNode(DialogueNode node)
 	{
-		_dialogueNodes.Add(node);
+		_dialogueNodes.Add(node.ID, node);
 
 		if(node != null)
 			AddChild(node);
@@ -248,28 +149,8 @@ public partial class DialogueGraph : GraphEdit
 
 	public void RemoveDialogueNode(DialogueNode node)
 	{
-		_dialogueNodes.Remove(node);
+		_dialogueNodes.Remove(node.ID);
 		RemoveChild(node);
-	}
-
-	///<summary>Unloads the given DialogueTreeData and removes all loadedNodes, this is intended only for use with UndoRedo.</summary>
-	public void UnloadTree(DialogueTreeData treeData, Array<DialogueNode> loadedNodes)
-	{			
-		for(int x = 0; x < treeData.GetConnectionsCount(); x++)
-		{
-			DialogueTreeData.Connection con = treeData.GetConnection(x);
-
-			DialogueNode fromNode = _dialogueNodes[con.FromNode];
-			DialogueNode toNode = _dialogueNodes[con.ToNode];
-
-			if(fromNode == null || toNode == null)
-				continue;
-
-			DisconnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
-		}
-
-		for(int x = 0; x < loadedNodes.Count; x++)
-			RemoveChild(loadedNodes[x]);
 	}
 
 	public void ClearTree()
@@ -280,11 +161,8 @@ public partial class DialogueGraph : GraphEdit
 		ClearConnections();
 		_dialogueNodes.Clear();
 
-		foreach(DialogueNode node in _dialogueNodes)
+		foreach(DialogueNode node in _dialogueNodes.Values)
 		{
-			if(node == null)
-				continue;
-
 			RemoveChild(node);
 			node.QueueFree();
 		}
@@ -292,13 +170,8 @@ public partial class DialogueGraph : GraphEdit
 
 	public void SelectAllNodes(bool selected = true)
 	{
-		foreach(DialogueNode node in _dialogueNodes)
-		{
-			if(node == null)
-				continue;
-
+		foreach(DialogueNode node in _dialogueNodes.Values)
 			node.Selected = selected;
-		}
 	}
 
 	public void ArrangeGraph(bool arrangeOnlySelected = false)
@@ -321,15 +194,15 @@ public partial class DialogueGraph : GraphEdit
 			switch (portType)
 			{
 				case SlotType.Any:
-					if((con[_fromNode].AsStringName() == node && con[_fromPort].AsInt32() == port) || (con[_toNode].AsStringName() == node && con[_toPort].AsInt32() == port))
+					if((con[FROM_NODE].AsStringName() == node && con[FROM_PORT].AsInt32() == port) || (con[TO_NODE].AsStringName() == node && con[TO_PORT].AsInt32() == port))
 						connections.Add(con);
 					break;
 				case SlotType.OutPort:
-					if(con[_fromNode].AsStringName() == node && con[_fromPort].AsInt32() == port)
+					if(con[FROM_NODE].AsStringName() == node && con[FROM_PORT].AsInt32() == port)
 						connections.Add(con);
 					break;
 				case SlotType.InPort:
-					if(con[_toNode].AsStringName() == node && con[_toPort].AsInt32() == port)
+					if(con[TO_NODE].AsStringName() == node && con[TO_PORT].AsInt32() == port)
 						connections.Add(con);
 					break;
 			}
@@ -347,15 +220,15 @@ public partial class DialogueGraph : GraphEdit
 			switch (portType)
 			{
 				case SlotType.Any:
-					if(con[_fromNode].AsStringName() == node || con[_toNode].AsStringName() == node)
+					if(con[FROM_NODE].AsStringName() == node || con[TO_NODE].AsStringName() == node)
 						connections.Add(con);
 					break;
 				case SlotType.OutPort:
-					if(con[_fromNode].AsStringName() == node)
+					if(con[FROM_NODE].AsStringName() == node)
 						connections.Add(con);
 					break;
 				case SlotType.InPort:
-					if(con[_toNode].AsStringName() == node)
+					if(con[TO_NODE].AsStringName() == node)
 						connections.Add(con);
 					break;
 			}
@@ -371,8 +244,8 @@ public partial class DialogueGraph : GraphEdit
 		foreach(Dictionary con in GetConnectionList())
 		{	
 			StringName
-			fromNode = con[_fromNode].AsStringName(),
-			toNode = con[_toNode].AsStringName();
+			fromNode = con[FROM_NODE].AsStringName(),
+			toNode = con[TO_NODE].AsStringName();
 		
 			foreach(StringName node in nodes)
 			{
@@ -410,19 +283,19 @@ public partial class DialogueGraph : GraphEdit
 
 			void CheckOutPort()
 			{
-				if(con[_fromPort].AsInt32() == oldPort && con[_fromNode].AsStringName() == node)
+				if(con[FROM_PORT].AsInt32() == oldPort && con[FROM_NODE].AsStringName() == node)
 				{
 					DisconnectNode(con);
-					ConnectNode(con[_fromNode].AsStringName(), newPort, con[_toNode].AsStringName(), con[_toPort].AsInt32());
+					ConnectNode(con[FROM_NODE].AsStringName(), newPort, con[TO_NODE].AsStringName(), con[TO_PORT].AsInt32());
 				}
 			}
 
 			void CheckInPort()
 			{
-				if(con[_toPort].AsInt32() == oldPort && con[_toNode].AsStringName() == node)
+				if(con[TO_PORT].AsInt32() == oldPort && con[TO_NODE].AsStringName() == node)
 				{
 					DisconnectNode(con);
-					ConnectNode(con[_fromNode].AsStringName(), con[_fromPort].AsInt32(), con[_toNode].AsStringName(), newPort);
+					ConnectNode(con[FROM_NODE].AsStringName(), con[FROM_PORT].AsInt32(), con[TO_NODE].AsStringName(), newPort);
 				}
 			}
 		}
@@ -442,8 +315,8 @@ public partial class DialogueGraph : GraphEdit
 			if(dialogueNode != null && !dialogueNode.NodeData.CanBeDeleted)
 				continue;
 
-			UndoRedo.AddDoMethod(this, Node.MethodName.RemoveChild, node);
-			UndoRedo.AddUndoMethod(this, Node.MethodName.AddChild, node);
+			UndoRedo.AddDoMethod(this, MethodName.RemoveDialogueNode, dialogueNode);
+			UndoRedo.AddUndoMethod(this, MethodName.AddDialogueNode, dialogueNode);
 			UndoRedo.AddUndoReference(node);
 
 			if(dialogueNode != null)
@@ -478,9 +351,9 @@ public partial class DialogueGraph : GraphEdit
 
 	private void OnNodeEndMove()
 	{
-		if(_arrangingNodes)
+		if(ArrangingNodes)
 		{
-			_arrangingNodes = false;
+			ArrangingNodes = false;
 			return;
 		}
 
@@ -536,8 +409,7 @@ public partial class DialogueGraph : GraphEdit
 	private void OnDialogueTreeDataChanged(DialogueTreeData newTreeData)
 	{
 		Visible = newTreeData != null;
-
-		LoadTree(newTreeData);
+		newTreeData?.LoadTree(this, false);
 	}
 
 	private void OnAddNodeButtonPressed()

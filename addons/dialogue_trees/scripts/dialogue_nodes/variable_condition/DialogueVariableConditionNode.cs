@@ -9,19 +9,17 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public partial class DialogueVariableConditionNode : DialogueNode
 {
-	private const string
-	_ConditionContainerPath = "VBoxContainer",
-	_variableOptionButtonPath = "VBoxContainer/HBoxContainer/VariableOptionButton";
-
 	public DialogueVariableNode VariableNode {get => _variableNode;}
 
 	private DialogueVariableNode _variableNode;
 	private DialogueVariableCondition _variableCondition;
+	[Export]
 	private Control _ConditionContainer;
 	private Array<GodotObject> _variableNodes = new ();
+	[Export]
 	private EditorOptionButton _variableOptionButton;
 
-	private int _connectedVariableIndex = -1;
+	private int _connectedVariableID = -1;
 	private Array _variableConditionSaveData = null;
 
 	[Signal]
@@ -29,8 +27,6 @@ public partial class DialogueVariableConditionNode : DialogueNode
 
 	public override void _Ready()
 	{
-		_ConditionContainer = GetNode<Control>(_ConditionContainerPath);
-		_variableOptionButton = GetNode<EditorOptionButton>(_variableOptionButtonPath);
 		_variableOptionButton.InitializeUndoRedo(GetUndoRedo(), "Set Condition Variable", GetDialogueTree());
 		_variableOptionButton.InitializeGetObjectName(this, MethodName.GetVariableOptionName);
 
@@ -44,9 +40,9 @@ public partial class DialogueVariableConditionNode : DialogueNode
 
 	public override void GraphReady()
 	{
-		if(_connectedVariableIndex != -1)
+		if(_connectedVariableID != -1)
 		{
-			SetVariableNode(DialogueGraph.GetChildOrNull<DialogueVariableNode>(_connectedVariableIndex));
+			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableID]);
 
 			_variableOptionButton.SelectedObject = VariableNode;
 			AddVariableConditionUI(InstantiateVariableCondition());
@@ -65,14 +61,14 @@ public partial class DialogueVariableConditionNode : DialogueNode
 	{
 		return new() 
 		{
-			_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((Node)_variableOptionButton.SelectedObject).GetIndex() : -1,
+			_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((DialogueNode)_variableOptionButton.SelectedObject).ID : -1,
 			_variableCondition?.Save()
 		};
 	}
 
 	public override void Load(Array data)
 	{
-		_connectedVariableIndex = data[0].AsInt32();
+		_connectedVariableID = data[0].AsInt32();
 		_variableConditionSaveData = data[1].AsGodotArray();
 	}
 

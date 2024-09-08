@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorTextEdit.cs" id="2_hhgy2"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorLineEdit.cs" id="2_i4rs3"]
 
-[node name="DialogueOutputNode" type="GraphNode"]
+[node name="DialogueOutputNode" type="GraphNode" node_paths=PackedStringArray("_characterLineEdit", "_outputTextEdit")]
 custom_minimum_size = Vector2(250, 0)
 offset_right = 9.0
 offset_bottom = 55.0
@@ -19,6 +19,8 @@ slot/0/right_color = Color(1, 1, 1, 1)
 slot/0/right_icon = null
 slot/0/draw_stylebox = true
 script = ExtResource("1_wxdhk")
+_characterLineEdit = NodePath("MarginContainer/VBoxContainer/CharacterLineEdit")
+_outputTextEdit = NodePath("MarginContainer/VBoxContainer/OutputTextEdit")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2

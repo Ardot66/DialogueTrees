@@ -1,8 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://x3dbyrmteyho"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeDock.cs" id="1_uqxht"]
-
-[sub_resource type="Shortcut" id="Shortcut_ymwh6"]
+[ext_resource type="PackedScene" uid="uid://cb7hw8jnpxljb" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph.tscn" id="2_udfvt"]
 
 [node name="DialogueTreeDock" type="Control"]
 layout_mode = 3
@@ -12,4 +11,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_uqxht")
-test = SubResource("Shortcut_ymwh6")
+_dialogueGraphScene = ExtResource("2_udfvt")
