@@ -165,8 +165,6 @@ public partial class DialogueTreeData : Resource
 
 		System.Collections.Generic.Dictionary<long, long> IDConversions = new ();
 
-		GD.Print(_dialogueNodeIDs.Stringify());
-
 		foreach(long ID in _dialogueNodeIDs)
 		{
 			if(!clearExistingTree)
@@ -182,8 +180,6 @@ public partial class DialogueTreeData : Resource
 			for (int x = 0; x < _dialogueNodeSaveData.Count; x++)
 			{
 				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)), IDConversions[_dialogueNodeIDs[x]]);
-
-				GD.Print(node);
 
 				if(node == null)
 					continue;
@@ -211,7 +207,6 @@ public partial class DialogueTreeData : Resource
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
 			Connection con = GetConnection(x);
-			GD.Print(con.FromNode, ", ", con.ToNode);
 			graph.ConnectNode(graph.DialogueNodes[IDConversions[con.FromNode]].Name, con.FromPort, graph.DialogueNodes[IDConversions[con.ToNode]].Name, con.ToPort);
 		}
 
