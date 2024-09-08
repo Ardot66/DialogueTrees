@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ardot.DialogueTrees;
 
@@ -27,27 +28,25 @@ public partial class DialogueTreeData : Resource
 		}
 	}
 	
-	private Array<StringName> _dialogueNodeTypeNames = new ();
+	private StringName[] _dialogueNodeTypeNames = System.Array.Empty<StringName>();
 	private int[] _dialogueNodeTypes = System.Array.Empty<int>();
 	private long[] _connections = System.Array.Empty<long>();
 	private long[] _dialogueNodeIDs = System.Array.Empty<long>();
 	private Array<Godot.Collections.Array> _dialogueNodeSaveData = new ();
+	private Array<Array<long>> _dialogueNodeReferences = new ();
 
 	public IReadOnlyList<Godot.Collections.Array> DialogueNodeSaveData {get =>_dialogueNodeSaveData;} 
 	public IReadOnlyList<long> DialogueNodeIDs {get => _dialogueNodeIDs;}
-
-	public bool Empty
-	{
-		get => _dialogueNodeTypeNames.Count == 0;
-	}
+	public IReadOnlyList<Array<long>> DialogueNodeReferences {get => _dialogueNodeReferences;}
 
 	public void Clear()
 	{
-		_dialogueNodeTypeNames.Clear();
+		_dialogueNodeTypeNames = System.Array.Empty<StringName>();
 		_dialogueNodeTypes = System.Array.Empty<int>();
-		_connections = System.Array.Empty<long>();
+		_connections = 	System.Array.Empty<long>();
 		_dialogueNodeIDs = System.Array.Empty<long>();
 		_dialogueNodeSaveData.Clear();
+		_dialogueNodeReferences.Clear();
 	}
 
 	public int GetNodesCount() => _dialogueNodeTypes.Length;
@@ -57,62 +56,59 @@ public partial class DialogueTreeData : Resource
 	/// Saves a tree to this DialogueTreeData.
 	/// </summary>
 	/// <param name="nodeMatch">Predicate that should return true if a node should be saved.</param>
-	public void SaveTree(DialogueGraph graph, bool saveUnique, Predicate<DialogueNode> nodeMatch = null)
+	public void SaveTree(DialogueGraph graph, Predicate<DialogueNode> nodeMatch = null)
 	{
 		Clear();
 
-		List<long> oldNodeIDs = new ();
+		HashSet<DialogueNode> nodesToSave = new ();
 
-		if(saveUnique)
-		{	
-			foreach(DialogueNode node in graph.DialogueNodes.Values)
-			{
-				if(nodeMatch != null && !nodeMatch.Invoke(node))
-					continue;
-						
-				oldNodeIDs.Add(node.ID);
-				node.SetID(graph.Dock.DialogueNodeCount);
-				graph.Dock.IncrementDialogueNodeCount();
-			}
+		foreach(DialogueNode node in graph.DialogueNodes.Values)
+		{
+			if(nodeMatch != null && !nodeMatch.Invoke(node))
+				continue;
+
+			nodesToSave.Add(node);
 		}
 
 		{
-			foreach(DialogueNode node in graph.DialogueNodes.Values)
-			{
-				if(nodeMatch != null && !nodeMatch.Invoke(node))
-					continue;
+			Array<Godot.Collections.Array> dialogueNodeSaveData = new ();
+			Array<Array<long>> dialogueNodeReferences = new ();
 
-				_dialogueNodeSaveData.Add(node.Save());
+			foreach(DialogueNode node in nodesToSave)
+			{
+				DialogueNodeSaveData saveData = node.Save();
+				dialogueNodeSaveData.Add(saveData.General);
+				dialogueNodeReferences.Add(saveData.References);
 			}
 
-			int[] nodeTypeIndexes = new int[_dialogueNodeSaveData.Count];
-			long[] nodeIDs = new long[_dialogueNodeSaveData.Count];
+			_dialogueNodeSaveData = dialogueNodeSaveData;
+			_dialogueNodeReferences = dialogueNodeReferences;
+		}
+
+		{
+			int[] nodeTypeIndexes = new int[nodesToSave.Count];
+			long[] nodeIDs = new long[nodesToSave.Count];
 			System.Collections.Generic.Dictionary<StringName, int> types = new();
 
+			int x = 0;
+			int nodeTypeIndexesIndex = 0;
+
+			foreach(DialogueNode node in nodesToSave)
 			{
-				int x = 0;
-				int nodeTypeIndexesIndex = 0;
+				nodeIDs[x] = node.ID;
+				StringName type = node.NodeData.DialogueNodeSaveName;
 
-				foreach(DialogueNode node in graph.DialogueNodes.Values)
+				if(!types.ContainsKey(type))
 				{
-					if(nodeMatch != null && !nodeMatch.Invoke(node))
-						continue;
-
-					nodeIDs[x] = node.ID;
-					StringName type = node.NodeData.DialogueNodeSaveName;
-
-					if(!types.ContainsKey(type))
-					{
-						types.Add(type, x);
-						x++;
-					}
-
-					nodeTypeIndexes[nodeTypeIndexesIndex] = types[type];
-					nodeTypeIndexesIndex++;
+					types.Add(type, x);
+					x++;
 				}
+
+				nodeTypeIndexes[nodeTypeIndexesIndex] = types[type];
+				nodeTypeIndexesIndex++;
 			}
 
-			_dialogueNodeTypeNames = new Array<StringName>(types.Keys);
+			_dialogueNodeTypeNames = types.Keys.ToArray();
 			_dialogueNodeTypes = nodeTypeIndexes;
 			_dialogueNodeIDs = nodeIDs;
 		}
@@ -141,19 +137,6 @@ public partial class DialogueTreeData : Resource
 
 		if(!string.IsNullOrEmpty(ResourcePath))
 			ResourceSaver.Save(this, ResourcePath);
-
-		if(saveUnique)
-		{
-			int index = 0;
-
-			foreach(DialogueNode node in graph.DialogueNodes.Values)
-			{
-				if(nodeMatch != null && !nodeMatch.Invoke(node))
-					continue;
-
-				node.SetID(oldNodeIDs[index]);
-			}
-		}
 	}
 
 	public Array<DialogueNode> LoadTree(DialogueGraph graph, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null)
@@ -163,7 +146,7 @@ public partial class DialogueTreeData : Resource
 
 		Array<DialogueNode> loadedNodes = preLoadedNodes ?? new ();
 
-		if(Empty && preLoadedNodes == null)
+		if(_dialogueNodeTypeNames.Length == 0 && preLoadedNodes == null)
 		{
 			foreach (DialogueNodeData nodeData in DialogueTreesSettings.Singleton.DialogueNodeData)
 			{
@@ -179,18 +162,47 @@ public partial class DialogueTreeData : Resource
 				}
 			}
 		}
+
+		System.Collections.Generic.Dictionary<long, long> IDConversions = new ();
+
+		GD.Print(_dialogueNodeIDs.Stringify());
+
+		foreach(long ID in _dialogueNodeIDs)
+		{
+			if(!clearExistingTree)
+			{
+				IDConversions.Add(ID, graph.Dock.DialogueNodeCount);
+				graph.Dock.IncrementDialogueNodeCount();
+			}
+			else
+				IDConversions.Add(ID, ID);
+		}
 	
 		if(preLoadedNodes == null)
 			for (int x = 0; x < _dialogueNodeSaveData.Count; x++)
 			{
-				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)), _dialogueNodeIDs[x]);
+				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)), IDConversions[_dialogueNodeIDs[x]]);
+
+				GD.Print(node);
 
 				if(node == null)
 					continue;
 
 				loadedNodes.Add(node);
 				graph.AddDialogueNode(node);
-				node?.Load(_dialogueNodeSaveData[x]);
+
+				Array<long> dialogueNodeReferences = _dialogueNodeReferences[x].Duplicate();
+
+				for(int y = 0; y < dialogueNodeReferences.Count; y++)
+					if(IDConversions.ContainsKey(dialogueNodeReferences[y]))
+						dialogueNodeReferences[y] = IDConversions[dialogueNodeReferences[y]];
+					else
+						dialogueNodeReferences[y] = -1;
+
+				node.Load(new DialogueNodeSaveData(
+					_dialogueNodeSaveData[x],
+					dialogueNodeReferences
+				));
 			}
 		else
 			for(int x = 0; x < preLoadedNodes.Count; x++)
@@ -199,11 +211,8 @@ public partial class DialogueTreeData : Resource
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
 			Connection con = GetConnection(x);
-
-			DialogueNode fromNode = graph.DialogueNodes[con.FromNode];
-			DialogueNode toNode = graph.DialogueNodes[con.ToNode];
-
-			graph.ConnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
+			GD.Print(con.FromNode, ", ", con.ToNode);
+			graph.ConnectNode(graph.DialogueNodes[IDConversions[con.FromNode]].Name, con.FromPort, graph.DialogueNodes[IDConversions[con.ToNode]].Name, con.ToPort);
 		}
 
 		graph.SelectAllNodes(false);
@@ -277,6 +286,12 @@ public partial class DialogueTreeData : Resource
 			new ()
 			{
 				{"name", PropertyName._dialogueNodeSaveData},
+				{"type", (int)Variant.Type.Array},
+				{"usage", (int)PropertyUsageFlags.Storage}
+			},
+			new ()
+			{
+				{"name", PropertyName._dialogueNodeReferences},
 				{"type", (int)Variant.Type.Array},
 				{"usage", (int)PropertyUsageFlags.Storage}
 			}

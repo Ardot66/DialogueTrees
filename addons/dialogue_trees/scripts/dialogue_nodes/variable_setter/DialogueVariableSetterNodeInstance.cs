@@ -11,9 +11,9 @@ public partial class DialogueVariableSetterNodeInstance : DialogueNodeInstance
     private DialogueVariableNodeInstance _variableNode;
     private DialogueVariableSetterInstance _variableSetterInstance;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        long variableNodeID = data[0].AsInt64();
+        long variableNodeID = data.References[0];
 
         if(variableNodeID != -1)
         {
@@ -27,7 +27,7 @@ public partial class DialogueVariableSetterNodeInstance : DialogueNodeInstance
 
             _variableSetterInstance = InstanceFromId(instanceID) as DialogueVariableSetterInstance;
 
-            _variableSetterInstance?.Ready(data[1].AsGodotArray());
+            _variableSetterInstance?.Ready(data.General[0].AsGodotArray());
         }
     }
 

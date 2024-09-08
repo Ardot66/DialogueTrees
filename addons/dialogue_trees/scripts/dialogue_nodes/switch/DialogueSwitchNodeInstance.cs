@@ -8,9 +8,9 @@ public partial class DialogueSwitchNodeInstance : DialogueNodeInstance
 {
     public string[] CaseTexts;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        CaseTexts = data[0].AsStringArray();
+        CaseTexts = data.General[0].AsStringArray();
     }
     
     public override void RecieveDialogueInput(string input, Variant[] parameters)

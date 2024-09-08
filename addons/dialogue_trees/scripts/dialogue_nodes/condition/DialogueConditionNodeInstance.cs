@@ -8,9 +8,9 @@ public partial class DialogueConditionNodeInstance : DialogueNodeInstance
 {
     public DialogueCondition ConnectedCondition;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        ConnectedCondition = DialogueTree.GetNodeOrNull<DialogueCondition>(data[0].AsNodePath());
+        ConnectedCondition = DialogueTree.GetNodeOrNull<DialogueCondition>(data.General[0].AsNodePath());
     }
 
     public override void RecievePortInput(int portIndex)
