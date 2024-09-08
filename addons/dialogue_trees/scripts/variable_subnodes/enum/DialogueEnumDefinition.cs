@@ -1,5 +1,6 @@
 # if TOOLS
 
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Godot.Collections;
@@ -9,23 +10,20 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public partial class DialogueEnumDefinition : DialogueVariableDefinition
 {
-	private const string
-	_enumValueTextScenePath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/enum_value.tscn", 
-	_enumValueLineEditPath = "HBoxContainer/EnumValueLineEdit",
-	_removeEnumValueButtonPath = "HBoxContainer/RemoveEnumValueButton",
-	_addEnumValueButtonPath = "AddEnumValueButton";
+	[Export]
+	private PackedScene _enumValueTextScene;
 
-	private const int
-	_postEnumValuesChildCount = 1,
-	_preEnumValuesChildCount = 1;
+	[Export]
+	private int _preEnumValuesChildCount;
 
 	public string[] EnumValues {get => _enumValues;}
 
 	private string[] _enumValues = System.Array.Empty<string>();
 
+	[Export]
 	private Button _addEnumValueButton;
 
-	private int _valuesCount;
+	private readonly List<DialogueEnumDefinitionEnumValue> _enumValueSetters = new ();
 
 	[Signal]
 	public delegate void EnumDefinitionChangingUndoRedoEventHandler(string[] newEnumDefinition, EditorUndoRedoManager undoRedo);
@@ -35,7 +33,6 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 
 	public override void _Ready()
 	{
-		_addEnumValueButton = GetNode<Button>(_addEnumValueButtonPath);
 		_addEnumValueButton.Pressed += OnAddEnumValueButtonPressed;
 	}
 
@@ -50,9 +47,9 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 
 		for(int x = 0; x < newEnumValues.Length; x++)
 		{
-			Control enumValue = ResourceLoader.Load<PackedScene>(_enumValueTextScenePath).Instantiate<Control>();
+			DialogueEnumDefinitionEnumValue enumValue = _enumValueTextScene.Instantiate<DialogueEnumDefinitionEnumValue>();
 
-			AddEnumValue(enumValue, x + _preEnumValuesChildCount, newEnumValues[x], false);
+			AddEnumValue(enumValue, x, newEnumValues[x], false);
 		}
 
 		EmitSignal(SignalName.EnumDefinitionChanging, newEnumValues);
@@ -60,13 +57,13 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 		_enumValues = newEnumValues;
 	}
 
-	private void AddEnumValue(Control enumValue, int index, string valueName = null, bool signalChange = true)
+	private void AddEnumValue(DialogueEnumDefinitionEnumValue enumValue, int index, string valueName = null, bool signalChange = true)
 	{	
 		AddChild(enumValue);
-		MoveChild(enumValue, index);
+		MoveChild(enumValue, index + _preEnumValuesChildCount);
 
-		ValueButton removeEnumValueButton = enumValue.GetNode<ValueButton>(_removeEnumValueButtonPath);
-		EditorLineEdit enumValueLineEdit = enumValue.GetNode<EditorLineEdit>(_enumValueLineEditPath);
+		ValueButton removeEnumValueButton = enumValue.RemoveEnumValueButton;
+		EditorLineEdit enumValueLineEdit = enumValue.EnumValueLineEdit;
 
 		removeEnumValueButton.Value = enumValue;
 		removeEnumValueButton.ValueButtonPressed += OnRemoveEnumValueButtonPressed;
@@ -78,7 +75,7 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 		if(valueName != null)
 			enumValueLineEdit.InitializeText(valueName);
 
-		_valuesCount++;
+		_enumValueSetters.Insert(index, enumValue);
 
 		VariableNode.Size = Vector2.Zero;
 
@@ -86,36 +83,30 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 			UpdateEnumValues();
 	}
 
-	private string RemoveEnumValue(Control enumValue, bool signalChange = true)
+	private string RemoveEnumValue(DialogueEnumDefinitionEnumValue enumValue, bool signalChange = true)
 	{
 		if(!HasNode(enumValue.Name.ToString()))
 			return null;
 
-		ValueButton removeEnumValueButton = enumValue.GetNode<ValueButton>(_removeEnumValueButtonPath);
-
-		removeEnumValueButton.ValueButtonPressed -= OnRemoveEnumValueButtonPressed;
+		enumValue.RemoveEnumValueButton.ValueButtonPressed -= OnRemoveEnumValueButtonPressed;
 		RemoveChild(enumValue);
 
-		EditorLineEdit enumValueLineEdit = enumValue.GetNode<EditorLineEdit>(_enumValueLineEditPath);
-
-		_valuesCount--;
+		_enumValueSetters.Remove(enumValue);
 
 		VariableNode.Size = Vector2.Zero;
 
 		if(signalChange)
 			UpdateEnumValues();
 
-		return enumValueLineEdit.Text;
+		return enumValue.EnumValueLineEdit.Text;
 	}
 
 	private void UpdateEnumValues()
 	{
-		string[] newEnumValues = new string[_valuesCount];
+		string[] newEnumValues = new string[_enumValueSetters.Count];
 
-		int childCount = GetChildCount();
-
-		for(int x = _preEnumValuesChildCount; x < childCount - _postEnumValuesChildCount; x++)
-			newEnumValues[x - _preEnumValuesChildCount] = GetChild(x).GetNode<EditorLineEdit>(_enumValueLineEditPath).Text;
+		for(int x = 0; x < _enumValueSetters.Count; x++)
+			newEnumValues[x] = _enumValueSetters[x].EnumValueLineEdit.Text;
 		
 		EmitSignal(SignalName.EnumDefinitionChanging, newEnumValues);
 
@@ -128,10 +119,10 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 
 		undoRedo.CreateAction("Add Enum Value", UndoRedo.MergeMode.Disable, VariableNode.GetDialogueTree());
 
-		Control enumValue = ResourceLoader.Load<PackedScene>(_enumValueTextScenePath).Instantiate<Control>();
+		DialogueEnumDefinitionEnumValue enumValue = _enumValueTextScene.Instantiate<DialogueEnumDefinitionEnumValue>();
 
 		undoRedo.AddDoReference(enumValue);
-		undoRedo.AddDoMethod(this, MethodName.AddEnumValue, enumValue, _valuesCount + _preEnumValuesChildCount, default, true);
+		undoRedo.AddDoMethod(this, MethodName.AddEnumValue, enumValue, _enumValueSetters.Count, default, true);
 		undoRedo.AddUndoMethod(this, MethodName.RemoveEnumValue, enumValue, true);
 
 		EmitSignal(SignalName.EnumDefinitionChangingUndoRedo, _enumValues.Append("").ToArray(), undoRedo);
@@ -141,8 +132,8 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 
 	private void OnRemoveEnumValueButtonPressed(Variant value)
 	{
-		Control enumValue = (Control)value.AsGodotObject();
-		int enumValueIndex = enumValue.GetIndex();
+		DialogueEnumDefinitionEnumValue enumValue = (DialogueEnumDefinitionEnumValue)value.AsGodotObject();
+		int enumValueIndex = _enumValueSetters.IndexOf(enumValue);
 
 		EditorUndoRedoManager undoRedo  = VariableNode.GetUndoRedo();
 
@@ -152,7 +143,7 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 		
 		for(int x = 0, y = 0; x < _enumValues.Length; x++, y++)
 		{
-			if(x == enumValueIndex - _preEnumValuesChildCount)
+			if(x == enumValueIndex)
 			{
 				y--;
 				continue;
@@ -182,7 +173,7 @@ public partial class DialogueEnumDefinition : DialogueVariableDefinition
 		string[] newEnumValues = new string[_enumValues.Length];
 		_enumValues.CopyTo(newEnumValues, 0);
 
-		newEnumValues[lineEdit.GetParent().GetParent().GetIndex() - _preEnumValuesChildCount] = newText;
+		newEnumValues[_enumValueSetters.IndexOf(lineEdit.GetParent().GetParent<DialogueEnumDefinitionEnumValue>())] = newText;
 
 		EmitSignal(SignalName.EnumDefinitionChangingUndoRedo, newEnumValues, undoRedo);
 	}

@@ -9,15 +9,12 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public partial class DialogueEnumDefaultValueSetter : DialogueVariableDefaultValueSetter
 {
-	private const string
-	_enumOptionButtonPath = "EnumOptionButton";
-
+	[Export]
 	private EditorOptionButton _enumOptionButton;
 	private DialogueEnumDefinition _definitionNode;
 	
 	public override void _Ready()
 	{
-		_enumOptionButton = GetNode<EditorOptionButton>(_enumOptionButtonPath);
 		_definitionNode = (DialogueEnumDefinition)VariableNode.VariableDefinition;
 
 		_definitionNode.EnumDefinitionChangingUndoRedo += OnEnumDefinitionChanging;

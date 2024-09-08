@@ -16,7 +16,7 @@ public partial class DialogueTreesSettings : Resource
 	}
 
 	public const string 
-	DialogueTreesSettingsPath = $"{DialogueTreesPlugin.DialogueTreesPluginPath}/dialogue_trees_settings.tres";
+	DialogueTreesSettingsPath = $"addons/dialogue_trees/dialogue_trees_settings.tres";
 
 	public static DialogueTreesSettings Singleton => _singleton;
 

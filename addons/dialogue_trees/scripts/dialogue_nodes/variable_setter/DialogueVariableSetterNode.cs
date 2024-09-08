@@ -9,19 +9,17 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public partial class DialogueVariableSetterNode : DialogueNode
 {
-	private const string
-	_setterContainerPath = "VBoxContainer",
-	_variableOptionButtonPath = "VBoxContainer/HBoxContainer/VariableOptionButton";
-
 	public DialogueVariableNode VariableNode {get => _variableNode;}
 
 	private DialogueVariableNode _variableNode;
 	private DialogueVariableSetter _variableSetter;
+	[Export]
 	private Control _setterContainer;
 	private Array<GodotObject> _variableNodes = new ();
+	[Export]
 	private EditorOptionButton _variableOptionButton;
 
-	private int _connectedVariableIndex = -1;
+	private int _connectedVariableID = -1;
 	private Array _variableSetterSaveData = null;
 
 	[Signal]
@@ -29,8 +27,6 @@ public partial class DialogueVariableSetterNode : DialogueNode
 
 	public override void _Ready()
 	{
-		_setterContainer = GetNode<Control>(_setterContainerPath);
-		_variableOptionButton = GetNode<EditorOptionButton>(_variableOptionButtonPath);
 		_variableOptionButton.InitializeUndoRedo(GetUndoRedo(), "Set Setter Variable", GetDialogueTree());
 		_variableOptionButton.InitializeGetObjectName(this, MethodName.GetVariableOptionName);
 
@@ -44,9 +40,9 @@ public partial class DialogueVariableSetterNode : DialogueNode
 
 	public override void GraphReady()
 	{
-		if(_connectedVariableIndex != -1)
+		if(_connectedVariableID != -1)
 		{
-			SetVariableNode(DialogueGraph.GetChildOrNull<DialogueVariableNode>(_connectedVariableIndex));
+			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableID]);
 
 			_variableOptionButton.SelectedObject = VariableNode;
 			AddVariableSetterUI(InstantiateVariableSetter());
@@ -65,14 +61,14 @@ public partial class DialogueVariableSetterNode : DialogueNode
 	{
 		return new() 
 		{
-			_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((Node)_variableOptionButton.SelectedObject).GetIndex() : -1,
+			_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((DialogueNode)_variableOptionButton.SelectedObject).ID : -1,
 			_variableSetter?.Save()
 		};
 	}
 
 	public override void Load(Array data)
 	{
-		_connectedVariableIndex = data[0].AsInt32();
+		_connectedVariableID = data[0].AsInt32();
 		_variableSetterSaveData = data[1].AsGodotArray();
 	}
 

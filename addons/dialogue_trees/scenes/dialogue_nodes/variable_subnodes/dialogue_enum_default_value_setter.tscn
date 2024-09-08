@@ -3,11 +3,12 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_subnodes/enum/DialogueEnumDefaultValueSetter.cs" id="1_3qej0"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_bdbpf"]
 
-[node name="DialogueEnumDefaultValueSetter" type="VBoxContainer"]
+[node name="DialogueEnumDefaultValueSetter" type="VBoxContainer" node_paths=PackedStringArray("_enumOptionButton")]
 offset_right = 45.0
 offset_bottom = 20.0
 size_flags_horizontal = 3
 script = ExtResource("1_3qej0")
+_enumOptionButton = NodePath("EnumOptionButton")
 
 [node name="DefaultValueLabel" type="Label" parent="."]
 layout_mode = 2

@@ -10,15 +10,12 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public partial class DialogueEnumCondition : DialogueVariableCondition
 {
-	private const string
-	_enumOptionButtonPath = "EnumOptionButton";	
-
+	[Export]
 	private EditorOptionButton _enumOptionButton;
 	private DialogueEnumDefinition _enumDefinition;
 
 	public override void _Ready()
 	{
-		_enumOptionButton = GetNode<EditorOptionButton>(_enumOptionButtonPath);
 		_enumOptionButton.InitializeUndoRedo(VariableNode.GetUndoRedo(), "Set Enum Value Condition", VariableNode.GetDialogueTree());
 		_enumOptionButton.InitializeGetObjectName(VariableNode.VariableDefaultValueSetter, DialogueEnumDefaultValueSetter.MethodName.GetEnumName);
 		

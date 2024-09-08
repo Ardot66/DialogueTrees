@@ -9,7 +9,7 @@ public abstract partial class DialogueNodeInstance : GodotObject
 	public DialogueTree DialogueTree;
 
 	///<summary>The child index of this <c>DialogueNodeInstance</c>'s respective <c>DialogueNode</c>. Can be used in certain functions, e.g. <c>GetConnectionsToPort(Index, myPort)</c></summary>
-	public int Index;
+	public long ID;
 
 	///<summary>Called when this instance is created, passes the data saved by this <c>DialogueNodeInstance</c>'s respective <c>DialogueNode</c>.</summary>
 	public virtual void Ready(Array data)
@@ -44,7 +44,7 @@ public abstract partial class DialogueNodeInstance : GodotObject
 	///<summary>Send an output signal to a port. This will activate the node that is connected to that port, or end the conversation if no node is connected.</summary>
 	public void SendPortOutput(int portIndex)
 	{
-		DialogueTreeData.Connection? portConnection = DialogueTree.GetConnectionToPort(Index, portIndex);
+		DialogueTreeData.Connection? portConnection = DialogueTree.GetConnectionToPort(ID, portIndex);
 
 		if(portConnection == null)
 		{

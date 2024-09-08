@@ -9,13 +9,9 @@ public partial class DialogueTreesPlugin
 : EditorPlugin
 # endif
 {
-	public const string 
-	DialogueTreesPluginPath = "res://addons/dialogue_trees";
-
 	# if TOOLS
 
-	private const string
-	_dialogueTreeDockScenePath = $"{DialogueTreesPluginPath}/scenes/editor/dialogue_tree_dock.tscn";
+	private const string _dialogueTreeDockScenePath = "res://addons/dialogue_trees/scenes/editor/dialogue_tree_dock.tscn";
 
 	public EditorUndoRedoManager UndoRedo;
 	public DialogueTreeDock Dock;

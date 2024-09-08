@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/variable_condition/DialogueVariableConditionNode.cs" id="1_qpa3m"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="1_u3tsn"]
 
-[node name="DialogueVariableConditionNode" type="GraphNode"]
+[node name="DialogueVariableConditionNode" type="GraphNode" node_paths=PackedStringArray("_ConditionContainer", "_variableOptionButton")]
 custom_minimum_size = Vector2(200, 0)
 offset_right = 9.0
 offset_bottom = 55.0
@@ -45,6 +45,8 @@ slot/3/right_color = Color(1, 1, 1, 1)
 slot/3/right_icon = null
 slot/3/draw_stylebox = true
 script = ExtResource("1_qpa3m")
+_ConditionContainer = NodePath("VBoxContainer")
+_variableOptionButton = NodePath("VBoxContainer/HBoxContainer/VariableOptionButton")
 
 [node name="Control" type="Control" parent="."]
 custom_minimum_size = Vector2(0, 10)

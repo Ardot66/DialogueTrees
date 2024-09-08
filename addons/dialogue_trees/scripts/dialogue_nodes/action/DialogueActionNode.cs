@@ -10,11 +10,9 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueActionNode : DialogueNode
 {
-	private const string
-	_actionSelectButtonPath = "MarginContainer/ActionSelectButton";
-
 	private Array<GodotObject> _avaliableActions = new ();
 
+	[Export]
 	private EditorOptionButton _actionSelectButton;
 	private DialogueTree _dialogueTree;
 
@@ -24,8 +22,7 @@ public partial class DialogueActionNode : DialogueNode
 
 		if(_dialogueTree == null)
 			return;
-		
-		_actionSelectButton = GetNode<EditorOptionButton>(_actionSelectButtonPath);
+	
 		_actionSelectButton.InitializeUndoRedo(GetUndoRedo(), "Set Connected Action", GetDialogueTree());
 		_actionSelectButton.InitializeGetObjectName(this, MethodName.GetActionName);
 

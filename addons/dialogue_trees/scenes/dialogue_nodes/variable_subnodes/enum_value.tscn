@@ -1,15 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://1c2lfg47octl"]
+[gd_scene load_steps=4 format=3 uid="uid://1c2lfg47octl"]
 
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_subnodes/enum/DialogueEnumDefinitionEnumValue.cs" id="1_f8pul"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorLineEdit.cs" id="1_p5ib8"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="2_bynie"]
 
-[node name="EnumValue" type="MarginContainer"]
+[node name="EnumValue" type="MarginContainer" node_paths=PackedStringArray("_enumValueLineEdit", "_removeEnumValueButton")]
 offset_right = 200.0
 offset_bottom = 18.0
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 5
+script = ExtResource("1_f8pul")
+_enumValueLineEdit = NodePath("HBoxContainer/EnumValueLineEdit")
+_removeEnumValueButton = NodePath("HBoxContainer/RemoveEnumValueButton")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2

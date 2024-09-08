@@ -8,18 +8,14 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueOutputNode : DialogueNode
 {
-	private const string 
-	_characterLineEditPath = "MarginContainer/VBoxContainer/CharacterLineEdit",
-	_outputTextEditPath = "MarginContainer/VBoxContainer/OutputTextEdit";
-
+	[Export]
 	private EditorLineEdit _characterLineEdit;
+
+	[Export]
 	private EditorTextEdit _outputTextEdit;
 
 	public override void _Ready()
 	{
-		_characterLineEdit = GetNode<EditorLineEdit>(_characterLineEditPath);
-		_outputTextEdit = GetNode<EditorTextEdit>(_outputTextEditPath);
-
 		_outputTextEdit.EditorTextEditTextChanged += OnOutputTextChanged;
 
 		_characterLineEdit.InitializeUndoRedo(GetUndoRedo(), "Set Output Character", GetDialogueTree());

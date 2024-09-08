@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://c4xo7n35gvats"]
+[gd_scene load_steps=3 format=3 uid="uid://c4xo7n35gvats"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/switch/DialogueSwitchNode.cs" id="1_2vgh6"]
+[ext_resource type="PackedScene" uid="uid://b2anpbqd0wsr" path="res://addons/dialogue_trees/scenes/dialogue_nodes/helper_nodes/case_text.tscn" id="2_a03lc"]
 
-[node name="DialogueSwitchNode" type="GraphNode"]
+[node name="DialogueSwitchNode" type="GraphNode" node_paths=PackedStringArray("_elseCaseLabel", "_addCaseButton")]
 custom_minimum_size = Vector2(200, 0)
 offset_right = 200.0
 offset_bottom = 86.0
@@ -26,6 +27,9 @@ slot/1/right_color = Color(1, 1, 1, 1)
 slot/1/right_icon = null
 slot/1/draw_stylebox = true
 script = ExtResource("1_2vgh6")
+_caseTextScene = ExtResource("2_a03lc")
+_elseCaseLabel = NodePath("Label")
+_addCaseButton = NodePath("MarginContainer/AddCaseButton")
 
 [node name="Label" type="Label" parent="."]
 visible = false

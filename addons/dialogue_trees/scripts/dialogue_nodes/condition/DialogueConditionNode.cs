@@ -9,11 +9,9 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueConditionNode : DialogueNode
 {
-	private const string
-	_conditionSelectButtonPath = "HBoxContainer/ConditionSelectButton";
-
 	private Array<GodotObject> _avaliableConditions = new ();
 
+	[Export]
 	private EditorOptionButton _conditionSelectButton;
 	private DialogueTree _dialogueTree;
 
@@ -25,8 +23,7 @@ public partial class DialogueConditionNode : DialogueNode
 
 		if(_dialogueTree == null)
 			return;
-		
-		_conditionSelectButton = GetNode<EditorOptionButton>(_conditionSelectButtonPath);
+	
 		_conditionSelectButton.InitializeUndoRedo(GetUndoRedo(), "Set Connected Condition", GetDialogueTree());
 		_conditionSelectButton.InitializeGetObjectName(this, MethodName.GetConditionName);
 

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/condition/DialogueConditionNode.cs" id="1_325ut"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorOptionButton.cs" id="2_f3vxo"]
 
-[node name="DialogueConditionNode" type="GraphNode"]
+[node name="DialogueConditionNode" type="GraphNode" node_paths=PackedStringArray("_conditionSelectButton")]
 custom_minimum_size = Vector2(150, 0)
 offset_right = 9.0
 offset_bottom = 55.0
@@ -45,6 +45,7 @@ slot/3/right_color = Color(1, 1, 1, 1)
 slot/3/right_icon = null
 slot/3/draw_stylebox = true
 script = ExtResource("1_325ut")
+_conditionSelectButton = NodePath("HBoxContainer/ConditionSelectButton")
 
 [node name="Control2" type="Control" parent="."]
 custom_minimum_size = Vector2(0, 10)

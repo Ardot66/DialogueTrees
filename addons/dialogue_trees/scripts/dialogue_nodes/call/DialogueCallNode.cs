@@ -9,20 +9,15 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueCallNode : DialogueNode
 {
-	private const string
-	_functionSelectButtonPath = "MarginContainer/FunctionSelectButton";
-
 	private Array<GodotObject> _avaliableFunctions = new ();
 
+	[Export]
 	private EditorOptionButton _functionSelectButton;
 
-	private int _connectedFunctionIndex = -1;
+	private int _connectedFunctionID = -1;
 
 	public override void _Ready()
 	{
-		base._Ready();
-
-		_functionSelectButton = GetNode<EditorOptionButton>(_functionSelectButtonPath);
 		_functionSelectButton.InitializeUndoRedo(GetUndoRedo(), "Set Connected Function", GetDialogueTree());
 		_functionSelectButton.InitializeGetObjectName(this, MethodName.GetFunctionName);
 		
@@ -32,20 +27,20 @@ public partial class DialogueCallNode : DialogueNode
 
 	public override void GraphReady()
 	{
-		if(_connectedFunctionIndex != -1)
-		 	_functionSelectButton.SelectedObject = DialogueGraph.GetChildOrNull<DialogueFunctionNode>(_connectedFunctionIndex);
+		if(_connectedFunctionID != -1)
+		 	_functionSelectButton.SelectedObject = DialogueGraph.DialogueNodes[_connectedFunctionID];
 
 		UpdateFunctionsList();
 	}
 
 	public override void Load(Array data)
 	{	
-		_connectedFunctionIndex = data[0].AsInt32();
+		_connectedFunctionID = data[0].AsInt32();
 	}
 
 	public override Array Save()
 	{
-		return new() {_functionSelectButton.SelectedObject.VariantType != Variant.Type.Nil ? ((Node)_functionSelectButton.SelectedObject).GetIndex() : -1};
+		return new() {_functionSelectButton.SelectedObject.VariantType == Variant.Type.Object ?((DialogueNode)_functionSelectButton.SelectedObject).ID : -1};
 	}
 
 	private void UpdateFunctionsList()

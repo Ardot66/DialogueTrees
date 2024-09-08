@@ -8,11 +8,38 @@ namespace Ardot.DialogueTrees;
 [Tool]
 public abstract partial class DialogueNode : GraphNode
 {
-	public DialogueNodeData NodeData;
-	public DialogueGraph DialogueGraph;
+	private DialogueNodeData _nodeData;
+	public DialogueNodeData NodeData {get => _nodeData;}
+
+	private DialogueGraph _dialogueGraph;
+	public DialogueGraph DialogueGraph {get => _dialogueGraph;}
+
+	private long _ID;
+	public long ID {get => _ID;}
 
 	public abstract Array Save();
 	public abstract void Load(Array data);
+
+	public void Setup(DialogueNodeData nodeData, DialogueGraph dialogueGraph, long ID)
+	{
+		if(NodeData != null)
+			return;
+
+		_nodeData = nodeData;
+		_dialogueGraph = dialogueGraph;
+		_ID = ID;
+		Name = ID.ToString();
+		TooltipText = nodeData.DialogueNodeTooltip;
+	}
+
+	/// <summary>
+	/// Sets the ID of this DialogueNode. <br/>
+	/// <b>Warning:</b> This function should not be used unless you really know what you're doing.
+	/// </summary>
+	public void SetID(long ID)
+	{
+		_ID = ID;
+	}
 
 	///<summary>Called after all <c>DialogueNode</c>s in the tree have been loaded.</summary>
 	public virtual void GraphReady()

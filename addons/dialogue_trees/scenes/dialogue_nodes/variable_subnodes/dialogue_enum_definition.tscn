@@ -1,12 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://l8cx82csmogw"]
+[gd_scene load_steps=4 format=3 uid="uid://l8cx82csmogw"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/variable_subnodes/enum/DialogueEnumDefinition.cs" id="1_3qmpk"]
+[ext_resource type="PackedScene" uid="uid://1c2lfg47octl" path="res://addons/dialogue_trees/scenes/dialogue_nodes/variable_subnodes/enum_value.tscn" id="2_88e75"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="2_feasd"]
 
-[node name="DialogueEnumDefinition" type="VBoxContainer"]
+[node name="DialogueEnumDefinition" type="VBoxContainer" node_paths=PackedStringArray("_addEnumValueButton")]
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_3qmpk")
+_enumValueTextScene = ExtResource("2_88e75")
+_preEnumValuesChildCount = 1
+_addEnumValueButton = NodePath("AddEnumValueButton")
 
 [node name="ValuesLabel" type="Label" parent="."]
 layout_mode = 2

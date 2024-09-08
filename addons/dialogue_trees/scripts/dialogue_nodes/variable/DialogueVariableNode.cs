@@ -10,10 +10,6 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueVariableNode : DialogueNode
 {
-	private const string 
-	_variableNameLineEditPath = "VariableNameLineEdit",
-	_typeOptionButtonPath = "TypeOptionButton";
-
 	public StringName VariableName;
 	public StringName VariableType;
 
@@ -22,8 +18,26 @@ public partial class DialogueVariableNode : DialogueNode
 
 	private StringName _variableName;
 	private StringName _variableType;
+
+	[Export]
 	private EditorOptionButton _typeOptionButton;
+
+	[Export]
 	private EditorLineEdit _variableNameLineEdit;
+
+	[ExportGroup("Variable Types")]
+	[ExportSubgroup("Enum")]
+	[Export]
+	private PackedScene _dialogueEnumDefaultValueSetterScene;
+
+	[Export]
+	private PackedScene _dialogueEnumDefinitionScene;
+
+	[Export]
+	private PackedScene _dialogueEnumSetterScene;
+
+	[Export]
+	private PackedScene _dialogueEnumCondtion;
 
 	private DialogueVariableDefaultValueSetter _variableDefaultValueSetter;
 	private DialogueVariableDefinition _variableDefinition;
@@ -39,9 +53,6 @@ public partial class DialogueVariableNode : DialogueNode
 
 	public override void _Ready()
 	{
-		_typeOptionButton = GetNode<EditorOptionButton>(_typeOptionButtonPath);
-		_variableNameLineEdit = GetNode<EditorLineEdit>(_variableNameLineEditPath);
-		
 		_typeOptionButton.EditorOptionButtonOptionSelected += OnTypeChanged;
 		_typeOptionButton.EditorOptionButtonMidUndoRedo += OnTypeChangedUndoRedo;
 
@@ -81,6 +92,8 @@ public partial class DialogueVariableNode : DialogueNode
 		_variableDefaultValueSetter?.SetValue(data[2]);
 	}
 
+	//NOTE: Let these be defined in project settings for easier access.
+
 	///<summary>Returns a list of data about how different variables should be defined.</summary>
 	public virtual VariableData[] GetVariableDataList()
 	{
@@ -88,10 +101,10 @@ public partial class DialogueVariableNode : DialogueNode
 		{
 			new(
 				"Enum",
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_default_value_setter.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_definition.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_setter.tscn"),
-				ResourceLoader.Load<PackedScene>($"{DialogueTreesPlugin.DialogueTreesPluginPath}/scenes/dialogue_nodes/variable_subnodes/dialogue_enum_condition.tscn")
+				_dialogueEnumDefaultValueSetterScene,
+				_dialogueEnumDefinitionScene,
+				_dialogueEnumSetterScene,
+				_dialogueEnumCondtion
 			)
 		};
 	}

@@ -8,20 +8,16 @@ namespace Ardot.DialogueTrees.DialogueNodes;
 [Tool]
 public partial class DialogueFunctionNode : DialogueNode
 {
-	private const string
-	_functionNameEditPath = "MarginContainer/FunctionNameEdit";
-
 	public string FunctionName = "";
 
 	[Signal]
 	public delegate void FunctionNameChangedEventHandler();
 
+	[Export]
 	private EditorLineEdit _functionNameEdit;
 
 	public override void _Ready()
 	{
-		_functionNameEdit = GetNode<EditorLineEdit>(_functionNameEditPath);
-
 		_functionNameEdit.InitializeUndoRedo(GetUndoRedo(), "Set Function Name", GetDialogueTree());
 		
 		_functionNameEdit.EditorLineEditTextChanged += OnFunctionNameChanged;

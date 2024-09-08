@@ -1,15 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2anpbqd0wsr"]
+[gd_scene load_steps=4 format=3 uid="uid://b2anpbqd0wsr"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/EditorTextEdit.cs" id="1_m75q8"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/editor_nodes/ValueButton.cs" id="1_nkotm"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/dialogue_nodes/switch/DialogueSwitchNodeCaseText.cs" id="1_qmcyd"]
 
-[node name="CaseText" type="MarginContainer"]
+[node name="CaseText" type="MarginContainer" node_paths=PackedStringArray("_caseTextEdit", "_removeCaseButton")]
 offset_right = 200.0
 offset_bottom = 18.0
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 5
+script = ExtResource("1_qmcyd")
+_caseTextEdit = NodePath("HBoxContainer/TextEdit")
+_removeCaseButton = NodePath("HBoxContainer/Button")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
