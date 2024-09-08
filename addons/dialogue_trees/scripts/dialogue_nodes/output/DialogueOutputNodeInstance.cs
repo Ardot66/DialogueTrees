@@ -8,10 +8,10 @@ public partial class DialogueOutputNodeInstance : DialogueNodeInstance
     public string Character;
     public string OutputText;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        OutputText = data[0].AsString();
-        Character = data[1].AsString();
+        OutputText = data.General[0].AsString();
+        Character = data.General[1].AsString();
     }
 
     public override void RecievePortInput(int portIndex)

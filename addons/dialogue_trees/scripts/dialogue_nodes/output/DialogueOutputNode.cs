@@ -22,20 +22,20 @@ public partial class DialogueOutputNode : DialogueNode
 		_outputTextEdit.InitializeUndoRedo(GetUndoRedo(), "Set Output Text", GetDialogueTree());
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		_outputTextEdit.InitializeText(data[0].AsString());
-		_characterLineEdit.InitializeText(data[1].AsString());
+		_outputTextEdit.InitializeText(data.General[0].AsString());
+		_characterLineEdit.InitializeText(data.General[1].AsString());
 	}
 
-	public override Array Save()
-	{
-		return new()
+	public override DialogueNodeSaveData Save() => new (
+		new()
 		{
 			_outputTextEdit.Text,
 			_characterLineEdit.Text,
-		};
-	}
+		},
+		null
+	);
 
 	private void OnOutputTextChanged(EditorTextEdit textEdit, string newText)
 	{

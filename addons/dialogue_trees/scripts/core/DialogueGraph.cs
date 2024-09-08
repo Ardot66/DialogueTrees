@@ -44,7 +44,7 @@ public partial class DialogueGraph : GraphEdit
 	private Button _arrangeSelectedNodesButton;
 	private Button _arrangeAllNodesButton;
 
-	private System.Collections.Generic.Dictionary<long, DialogueNode> _dialogueNodes = new ();
+	private Godot.Collections.Dictionary<long, DialogueNode> _dialogueNodes = new ();
 	public IReadOnlyDictionary<long, DialogueNode> DialogueNodes {get => _dialogueNodes;}
 
 	///<summary>Called directly after a <c>DialogueNode</c> is removed from the graph manually by the user (not when removed by undo-redo). This allows for adding extra undo-redo instructions to the 'Delete Dialogue Nodes' action. <c>CommitAction()</c> is always automatically called with <c>true</c> as its parameter.<para/>
@@ -159,13 +159,14 @@ public partial class DialogueGraph : GraphEdit
 			return;
 
 		ClearConnections();
-		_dialogueNodes.Clear();
 
 		foreach(DialogueNode node in _dialogueNodes.Values)
 		{
 			RemoveChild(node);
 			node.QueueFree();
 		}
+
+		_dialogueNodes.Clear();
 	}
 
 	public void SelectAllNodes(bool selected = true)
@@ -403,13 +404,17 @@ public partial class DialogueGraph : GraphEdit
 
 	private void OnDialogueTreeExitingTree()
 	{
-		Dock.DisposeTree(DialogueTree);
+		Dock.DisposeGraph(this);
 	}
 
 	private void OnDialogueTreeDataChanged(DialogueTreeData newTreeData)
 	{
 		Visible = newTreeData != null;
-		newTreeData?.LoadTree(this, false);
+
+		if(newTreeData == null)
+			ClearTree();
+		else
+			newTreeData?.LoadTree(this, true);
 	}
 
 	private void OnAddNodeButtonPressed()

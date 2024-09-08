@@ -19,7 +19,7 @@ public partial class DialogueVariableSetterNode : DialogueNode
 	[Export]
 	private EditorOptionButton _variableOptionButton;
 
-	private int _connectedVariableID = -1;
+	private long _connectedVariableID = -1;
 	private Array _variableSetterSaveData = null;
 
 	[Signal]
@@ -57,19 +57,15 @@ public partial class DialogueVariableSetterNode : DialogueNode
 		_variableOptionButton.UpdateOptionsUI(_variableNodes);
 	}
 
-	public override Array Save()
-	{
-		return new() 
-		{
-			_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((DialogueNode)_variableOptionButton.SelectedObject).ID : -1,
-			_variableSetter?.Save()
-		};
-	}
+	public override DialogueNodeSaveData Save() => new (
+		new() { _variableSetter?.Save() },
+		new () {_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((DialogueNode)_variableOptionButton.SelectedObject).ID : -1}
+	);
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		_connectedVariableID = data[0].AsInt32();
-		_variableSetterSaveData = data[1].AsGodotArray();
+		_connectedVariableID = data.References[0];
+		_variableSetterSaveData = data.General[0].AsGodotArray();
 	}
 
 	private void OnChildEnteredGraph(Node child)

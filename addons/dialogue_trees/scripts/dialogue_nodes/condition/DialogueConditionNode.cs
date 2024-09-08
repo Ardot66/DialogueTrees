@@ -36,18 +36,15 @@ public partial class DialogueConditionNode : DialogueNode
 		UpdateConditionsList();
 	}
 
-	public override void Load(Array data)
+	public override void Load(DialogueNodeSaveData data)
 	{
-		_conditionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueCondition>(data[0].AsNodePath()); 
+		_conditionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueCondition>(data.General[0].AsNodePath()); 
 	}
 
-	public override Array Save()
-	{
-		return new()
-		{
-			_conditionSelectButton.SelectedObject.VariantType != Variant.Type.Nil ? _dialogueTree.GetPathTo((Node)_conditionSelectButton.SelectedObject) : null
-		};
-	}
+	public override DialogueNodeSaveData Save() => new (
+		new() { _conditionSelectButton.SelectedObject.VariantType != Variant.Type.Nil ? _dialogueTree.GetPathTo((Node)_conditionSelectButton.SelectedObject) : null },
+		null
+	);
 
 	private void UpdateConditionsList()
 	{

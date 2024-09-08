@@ -8,9 +8,9 @@ public partial class DialogueActionNodeInstance : DialogueNodeInstance
 {
     public DialogueAction ConnectedAction;
 
-    public override void Ready(Array data)
+    public override void Ready(DialogueNodeSaveData data)
     {
-        ConnectedAction = DialogueTree.GetNodeOrNull<DialogueAction>(data[0].AsNodePath());
+        ConnectedAction = DialogueTree.GetNodeOrNull<DialogueAction>(data.General[0].AsNodePath());
     }
 
     public override void RecievePortInput(int portIndex)

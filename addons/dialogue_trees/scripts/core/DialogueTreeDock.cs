@@ -52,7 +52,7 @@ public partial class DialogueTreeDock : Control
 
 	public void SaveTree()
 	{
-		DialogueGraph?.TreeData?.SaveTree(DialogueGraph, false);
+		DialogueGraph?.TreeData?.SaveTree(DialogueGraph);
 	}	
 
 	public void LoadTree(DialogueTree newDialogueTree)
@@ -60,7 +60,7 @@ public partial class DialogueTreeDock : Control
 		if(DialogueGraph != null)
 		{
 			DialogueGraph.Visible = false;
-			DialogueGraph?.TreeData?.SaveTree(DialogueGraph, false);
+			DialogueGraph?.TreeData?.SaveTree(DialogueGraph);
 			DialogueGraph.Name = DialogueGraph.DialogueTree.GetInstanceId().ToString();
 		}
 
@@ -84,13 +84,10 @@ public partial class DialogueTreeDock : Control
 		}
 	}
 
-	public void DisposeTree(DialogueTree dialogueTree)
+	public void DisposeGraph(DialogueGraph dialogueGraph)
 	{	
-		DialogueGraph dialogueGraph = GetNodeOrNull<DialogueGraph>(dialogueTree.GetInstanceId().ToString());
-
-		if(dialogueGraph == null && DialogueGraph.DialogueTree == dialogueTree && DialogueGraph != null)
+		if(dialogueGraph == DialogueGraph)
 		{
-			dialogueGraph = DialogueGraph;
 			DialogueGraph = null;
 			Plugin.EditedDialogueTree = null;
 		}
@@ -166,7 +163,7 @@ public partial class DialogueTreeDock : Control
 					break;
 				case "CS":
 					CopiedTreeData = new ();
-					CopiedTreeData.SaveTree(DialogueGraph, true, (DialogueNode node) => node.Selected);
+					CopiedTreeData.SaveTree(DialogueGraph, (DialogueNode node) => node.Selected);
 					break;
 				case "P":
 					if(CopiedTreeData == null || DialogueGraph == null)
@@ -212,7 +209,7 @@ public partial class DialogueTreeDock : Control
 		{
 			case EditorFileDialog.FileModeEnum.SaveFile:
 				DialogueTreeData treeData = ResourceLoader.Exists(path, typeof(DialogueTreeData).ToString()) ? ResourceLoader.Load<DialogueTreeData>(path) : new ();
-				treeData.SaveTree(DialogueGraph, true, (DialogueNode node) => node.Selected);
+				treeData.SaveTree(DialogueGraph, (DialogueNode node) => node.Selected);
 
 				ResourceSaver.Save(treeData, path, ResourceSaver.SaverFlags.ChangePath);
 				break;

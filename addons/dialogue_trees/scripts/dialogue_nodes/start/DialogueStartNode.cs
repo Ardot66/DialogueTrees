@@ -8,15 +8,8 @@ using Ardot.DialogueTrees;
 [Tool]
 public partial class DialogueStartNode : DialogueNode
 {
-	public override Array Save()
-	{
-		return null;
-	}
-
-	public override void Load(Array data)
-	{
-
-	}
+	public override DialogueNodeSaveData Save() => new (null, null);
+	public override void Load(DialogueNodeSaveData data) {}
 }
 
 # endif
