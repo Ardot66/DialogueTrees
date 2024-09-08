@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://dyxojkp42n857"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/DialogueTree.cs" id="1_hcg5x"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="2_8f5cp"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/SetPropertyAction.cs" id="3_ij1mk"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/CheckPropertyCondition.cs" id="4_hjian"]
+
+[sub_resource type="Resource" id="Resource_tir1h"]
+script = ExtResource("2_8f5cp")
+_dialogueNodeTypeNames = [&"Srt", &"Var", &"VSt"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2)
+_connections = PackedInt64Array(0, 0, 2, 0)
+_dialogueNodeIDs = PackedInt64Array(0, 2, 2)
+_dialogueNodeSaveData = [null, [&"A", &"Enum", "C", PackedStringArray("B", "C")], [2, ["B"]]]
+
+[node name="DialogueTree" type="Node"]
+script = ExtResource("1_hcg5x")
+TreeData = SubResource("Resource_tir1h")
+
+[node name="SetPropertyAction" type="Node" parent="."]
+script = ExtResource("3_ij1mk")
+TargetedNode = NodePath("../CheckPropertyCondition")
+_property = &"process_physics_priority"
+_value = ""
+
+[node name="CheckPropertyCondition" type="Node" parent="."]
+script = ExtResource("4_hjian")
+TargetedNode = NodePath("..")
+_property = &"auto_translate_mode"
+_value = 1
