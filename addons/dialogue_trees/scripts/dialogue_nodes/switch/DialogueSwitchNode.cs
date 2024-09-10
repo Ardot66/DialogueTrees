@@ -17,16 +17,13 @@ public partial class DialogueSwitchNode : DialogueNodeContainer
 	[Export]
 	private Label _elseCaseLabel;
 
-	private const int 
-	_extraChildrenCount = 2;
-
 	private static Color InputSlotColor {get => Color.FromString("White", default);}
 	private static Color OutputSlotColor {get => Color.FromString("White", default);}
 
 	[Export]
 	private Button _addCaseButton;
 
-	private List<DialogueSwitchNodeCaseText> _caseTexts = new ();
+	private Array<DialogueSwitchNodeCaseText> _caseTexts = new ();
 
 	public override void _Ready()
 	{

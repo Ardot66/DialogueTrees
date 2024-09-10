@@ -14,7 +14,7 @@ public partial class DialogueCallNode : DialogueNode
 	[Export]
 	private EditorOptionButton _functionSelectButton;
 
-	private long _connectedFunctionID = -1;
+	private int _connectedFunctionIndex = -1;
 
 	public override void _Ready()
 	{
@@ -27,20 +27,20 @@ public partial class DialogueCallNode : DialogueNode
 
 	public override void GraphReady()
 	{
-		if(_connectedFunctionID != -1)
-		 	_functionSelectButton.SelectedObject = DialogueGraph.DialogueNodes[_connectedFunctionID];
+		if(_connectedFunctionIndex != -1)
+		 	_functionSelectButton.SelectedObject = DialogueGraph.DialogueNodes[_connectedFunctionIndex];
 
 		UpdateFunctionsList();
 	}
 
 	public override void Load(DialogueNodeSaveData data)
 	{	
-		_connectedFunctionID = data.References[0];
+		_connectedFunctionIndex = data.References[0];
 	}
 
 	public override DialogueNodeSaveData Save() => new(
 		null,
-		new Array<long>() {_functionSelectButton.SelectedObject.VariantType == Variant.Type.Object ?((DialogueNode)_functionSelectButton.SelectedObject).ID : -1}
+		new Array<int>() {_functionSelectButton.SelectedObject.VariantType == Variant.Type.Object ? DialogueGraph.GetDialogueNodeIndex((DialogueNode)_functionSelectButton.SelectedObject) : -1}
 	);
 
 	private void UpdateFunctionsList()
