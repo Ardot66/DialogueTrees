@@ -1,22 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://dyxojkp42n857"]
+[gd_scene load_steps=7 format=3 uid="uid://dyxojkp42n857"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/DialogueTree.cs" id="1_hcg5x"]
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="2_8op3c"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="2_hq8t6"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/SetPropertyAction.cs" id="3_ij1mk"]
 [ext_resource type="Script" path="res://addons/dialogue_trees/CheckPropertyCondition.cs" id="4_hjian"]
 
-[sub_resource type="Resource" id="Resource_a370b"]
-script = ExtResource("2_8op3c")
-_dialogueNodeTypeNames = [&"Srt", &"Swc", &"Fnc", &"Cal"]
-_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 1, 3, 1, 3, 1, 3)
-_connections = PackedInt64Array(0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 3, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0)
-_dialogueNodeIDs = PackedInt64Array(0, 1, 2, 3, 15, 0, 0, 0, 0, 0)
-_dialogueNodeSaveData = [null, [PackedStringArray("")], ["a"], null, [PackedStringArray("")], null, [PackedStringArray("")], null, [PackedStringArray("")], null]
-_dialogueNodeReferences = [null, null, null, [2], null, [-1], null, [-1], null, [-1]]
+[sub_resource type="Resource" id="Resource_40581"]
+script = ExtResource("2_hq8t6")
+_dialogueNodeTypeNames = [&"Srt", &"Out", &"Swc", &"Cal", &"Fnc"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 4)
+_connections = PackedInt32Array(0, 0, 1, 0, 1, 0, 2, 0, 2, 0, 3, 0, 4, 0, 2, 0)
+_dialogueNodeSaveData = [null, ["", ""], [PackedStringArray("", "", "")], null, ["Func"]]
+_dialogueNodeReferences = [null, null, null, [4], null]
+
+[sub_resource type="Resource" id="Resource_l0fsw"]
+script = ExtResource("2_hq8t6")
+_dialogueNodeTypeNames = [&"Srt", &"Out", &"Swc", &"Cal", &"Fnc"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 4)
+_connections = PackedInt32Array(1, 0, 2, 0, 2, 0, 3, 0, 4, 0, 2, 0, 0, 0, 1, 0)
+_dialogueNodeSaveData = [null, ["", ""], [PackedStringArray("", "", "")], null, ["Func"]]
+_dialogueNodeReferences = [null, null, null, [4], null]
 
 [node name="DialogueTree" type="Node"]
 script = ExtResource("1_hcg5x")
-TreeData = SubResource("Resource_a370b")
+TreeData = SubResource("Resource_40581")
 
 [node name="SetPropertyAction" type="Node" parent="."]
 script = ExtResource("3_ij1mk")
@@ -32,4 +39,4 @@ _value = 1
 
 [node name="DialogueTree" type="Node" parent="."]
 script = ExtResource("1_hcg5x")
-TreeData = SubResource("Resource_a370b")
+TreeData = SubResource("Resource_l0fsw")

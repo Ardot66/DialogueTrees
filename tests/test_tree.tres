@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DialogueTreeData" load_steps=2 format=3 uid="uid://dngke8by3yuq"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="1_axuvm"]
+
+[resource]
+script = ExtResource("1_axuvm")
+_dialogueNodeTypeNames = [&"Srt", &"Out", &"Swc", &"Cal", &"Fnc"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 4)
+_connections = PackedInt32Array(0, 0, 1, 0, 1, 0, 2, 0, 2, 0, 3, 0, 4, 0, 2, 0)
+_dialogueNodeSaveData = [null, ["", ""], [PackedStringArray("", "", "")], null, ["Func"]]
+_dialogueNodeReferences = [null, null, null, [4], null]
