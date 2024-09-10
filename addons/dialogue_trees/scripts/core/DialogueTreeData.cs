@@ -58,7 +58,6 @@ public partial class DialogueTreeData : Resource
 		Clear();
 
 		System.Collections.Generic.Dictionary<DialogueNode, int> nodesToSave = new ();
-
 		{
 			int x = 0;
 			foreach(DialogueNode node in graph.DialogueNodes)
@@ -71,9 +70,8 @@ public partial class DialogueTreeData : Resource
 			}
 		}
 
-		int ConvertReference(int reference)
+		int ConvertReference(DialogueNode referenceNode)
 		{
-			DialogueNode referenceNode = graph.DialogueNodes[reference];
 			return nodesToSave.TryGetValue(referenceNode, out int referenceInt) ? referenceInt : -1;	
 		}
 
@@ -88,7 +86,17 @@ public partial class DialogueTreeData : Resource
 
 				if(saveData.References != null)
 					for(int x = 0; x < saveData.References.Count; x++)
-						saveData.References[x] = ConvertReference(saveData.References[x]);
+					{
+						int reference = saveData.References[x];
+
+						if(reference >= graph.DialogueNodes.Count || reference < 0)
+						{
+							saveData.References[x] = -1;
+							continue;
+						}
+
+						saveData.References[x] = ConvertReference(graph.DialogueNodes[saveData.References[x]]);
+					}
 
 				dialogueNodeReferences.Add(saveData.References);
 			}
@@ -133,12 +141,12 @@ public partial class DialogueTreeData : Resource
 			fromNode = graph.GetNodeOrNull<DialogueNode>(con[DialogueGraph.FROM_NODE].AsStringName().ToString()),
 			toNode = graph.GetNodeOrNull<DialogueNode>(con[DialogueGraph.TO_NODE].AsStringName().ToString());
 
-			if(fromNode == null || toNode == null || nodeMatch != null && nodesToSave.ContainsKey(fromNode) || nodesToSave.ContainsKey(toNode))
+			if(fromNode == null || toNode == null || !nodesToSave.ContainsKey(fromNode) || !nodesToSave.ContainsKey(toNode))
 				continue;
 
-			connections.Add(ConvertReference(nodesToSave[fromNode]));
+			connections.Add(ConvertReference(fromNode));
 			connections.Add(con[DialogueGraph.FROM_PORT].AsInt32());
-			connections.Add(ConvertReference(nodesToSave[toNode]));
+			connections.Add(ConvertReference(toNode));
 			connections.Add(con[DialogueGraph.TO_PORT].AsInt32());
 		}
 
@@ -148,8 +156,9 @@ public partial class DialogueTreeData : Resource
 			ResourceSaver.Save(this, ResourcePath);
 	}
 
-	//Add some kind of out variable that transmits index offset?
-	public Array<DialogueNode> LoadTree(DialogueGraph graph, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null)
+	public Array<DialogueNode> LoadTree(DialogueGraph graph, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null, Array<int> preRemovedNodes = null) => LoadTree(graph, out int _, out Array<int> _, clearExistingTree, preLoadedNodes, preRemovedNodes);
+	
+	public Array<DialogueNode> LoadTree(DialogueGraph graph, out int nodeCount, out Array<int> removedNodes, bool clearExistingTree = true, Array<DialogueNode> preLoadedNodes = null, Array<int> preRemovedNodes = null)
 	{
 		if(clearExistingTree)
 			graph.ClearTree();
@@ -173,54 +182,72 @@ public partial class DialogueTreeData : Resource
 			}
 		}
 
-		int graphNodeCount = graph.DialogueNodes.Count;
-
-		int ConvertIndex(int Index)
-		{
-			if(clearExistingTree)
-				return Index;
-			else if (Index != -1)
-				return Index + graphNodeCount;
-			else
-				return -1;
-		}
+		nodeCount = graph.DialogueNodes.Count;
 	
 		if(preLoadedNodes == null)
+		{
+			removedNodes = new ();
+
 			for (int x = 0; x < _dialogueNodeSaveData.Count; x++)
 			{
 				DialogueNode node = graph.InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(GetNodeType(x)));
 
 				if(node == null)
+				{
+					removedNodes.Add(x);
 					continue;
+				}
 
 				loadedNodes.Add(node);
 				graph.AddDialogueNode(node);
+			}
+
+			for(int x = 0; x < _dialogueNodeSaveData.Count; x++)
+			{
+				int nodeIndex = ConvertIndex(x, nodeCount, removedNodes);
+
+				if(nodeIndex == -1)
+					continue;
 
 				Array<int> dialogueNodeReferences = _dialogueNodeReferences[x].Duplicate();
 
 				for(int y = 0; y < dialogueNodeReferences.Count; y++)
-					dialogueNodeReferences[y] = ConvertIndex(dialogueNodeReferences[y]);
+					dialogueNodeReferences[y] = ConvertIndex(dialogueNodeReferences[y], nodeCount, removedNodes);
 
-				node.Load(new DialogueNodeSaveData(
+				graph.DialogueNodes[nodeIndex].Load(new DialogueNodeSaveData(
 					_dialogueNodeSaveData[x],
 					dialogueNodeReferences
 				));
 			}
+		}
 		else
+		{
 			for(int x = 0; x < preLoadedNodes.Count; x++)
 				graph.AddDialogueNode(preLoadedNodes[x]);
+
+			removedNodes = preRemovedNodes;
+		}
 			
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
 			Connection con = GetConnection(x);
-			graph.ConnectNode(graph.DialogueNodes[ConvertIndex(con.FromNode)].Name, con.FromPort, graph.DialogueNodes[ConvertIndex(con.ToNode)].Name, con.ToPort);
+
+			int fromNodeIndex = ConvertIndex(con.FromNode, nodeCount, removedNodes);
+			int toNodeIndex = ConvertIndex(con.ToNode, nodeCount, removedNodes);
+			
+			if(fromNodeIndex == -1 || toNodeIndex == -1)
+				continue;
+
+			graph.ConnectNode(graph.DialogueNodes[fromNodeIndex].Name, con.FromPort, graph.DialogueNodes[toNodeIndex].Name, con.ToPort);
 		}
 
 		graph.SelectAllNodes(false);
-
+	
 		foreach(DialogueNode node in loadedNodes)
 		{
-			node.GraphReady();
+			if(preLoadedNodes == null)
+				node.GraphReady();
+				
 			node.Selected = true;
 		}		
 
@@ -230,23 +257,24 @@ public partial class DialogueTreeData : Resource
 		return loadedNodes;
 	}
 
-	//Implement IDOffset correctly
-
 	///<summary>Unloads the given DialogueTreeData and removes all loadedNodes, this is intended only for use with UndoRedo.</summary>
-	public void UnloadTree(DialogueGraph graph, Array<DialogueNode> loadedNodes, int IDOffset)
+	public void UnloadTree(DialogueGraph graph, Array<DialogueNode> loadedNodes, int nodeCount, Array<int> removedNodes)
 	{			
 		for(int x = 0; x < GetConnectionsCount(); x++)
 		{
 			Connection con = GetConnection(x);
 
-			DialogueNode fromNode = graph.DialogueNodes[con.FromNode];
-			DialogueNode toNode = graph.DialogueNodes[con.ToNode];
+			int fromNode = ConvertIndex(con.FromNode, nodeCount, removedNodes);
+			int toNode = ConvertIndex(con.ToNode, nodeCount, removedNodes);
 
-			graph.DisconnectNode(fromNode.Name, con.FromPort, toNode.Name, con.ToPort);
+			if(fromNode == -1 || toNode == -1)
+				continue;
+
+			graph.DisconnectNode(graph.DialogueNodes[fromNode].Name, con.FromPort, graph.DialogueNodes[toNode].Name, con.ToPort);
 		}
 
 		for(int x = 0; x < loadedNodes.Count; x++)
-			graph.RemoveChild(loadedNodes[x]);
+			graph.RemoveDialogueNode(loadedNodes[x]);
 	}
 
 	public int GetConnectionsCount() => _connections.Length / 4;
@@ -255,6 +283,44 @@ public partial class DialogueTreeData : Resource
 		int index = connectionIndex * 4;
 
 		return new (_connections[index], (int)_connections[index + 1], _connections[index + 2], (int)_connections[index + 3]);
+	}
+
+	public bool IsValid()
+	{
+		int nodeCount = _dialogueNodeTypes.Length;
+
+		bool typesValid = true;
+		
+		foreach(int type in _dialogueNodeTypes)
+			typesValid &= _dialogueNodeTypeNames.Length > type && type >= 0;
+
+		return
+		typesValid &&
+		_dialogueNodeReferences.Count == nodeCount &&
+		_dialogueNodeSaveData.Count == nodeCount &&
+		_connections.Length % 4 == 0;
+	}	
+
+	private static int ConvertIndex(int index, int nodeCount, Array<int> removedNodes)
+	{
+		if (index != -1)
+		{
+			int offset = 0;
+
+			for(int x = 0; x < removedNodes.Count; x++)
+			{
+				int removedNode = removedNodes[x];
+
+				if(removedNode == index)
+					return -1;
+				if(removedNode < index)
+					offset --;
+			}
+
+			return index + nodeCount + offset;
+		}
+		else
+			return -1;
 	}
 
 	public override Array<Dictionary> _GetPropertyList()
@@ -295,19 +361,19 @@ public partial class DialogueTreeData : Resource
 	}
 
 	public readonly struct Connection
-{
-	public Connection(int fromNode, int fromPort, int toNode, int toPort)
 	{
-		FromNode = fromNode;
-		FromPort = fromPort;
-		ToNode = toNode;
-		ToPort = toPort;
-	}
+		public Connection(int fromNode, int fromPort, int toNode, int toPort)
+		{
+			FromNode = fromNode;
+			FromPort = fromPort;
+			ToNode = toNode;
+			ToPort = toPort;
+		}
 
-	public readonly int
-	FromPort,
-	ToPort,
-	FromNode,
-	ToNode;
-}
+		public readonly int
+		FromPort,
+		ToPort,
+		FromNode,
+		ToNode;
+	}
 }

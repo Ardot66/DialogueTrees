@@ -116,7 +116,7 @@ public partial class DialogueGraph : GraphEdit
 	///<summary>Instantiates and sets up a Dialogue Node. May return null. You must manually call GraphReady() and Load() on the returned node.</summary>
 	public DialogueNode InstantiateDialogueNode(DialogueNodeData nodeData)
 	{
-		if(_dialogueNodes.Count >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
+		if(nodeData == null || _dialogueNodes.Count >= nodeData.NodeLimit || !nodeData.TryInstantiateDialogueNode(out DialogueNode dialogueNode))
 			return null;
 
 		dialogueNode.Setup(nodeData, this);
@@ -149,10 +149,10 @@ public partial class DialogueGraph : GraphEdit
 			AddChild(node);
 	}
 
-	public void RemoveDialogueNode(DialogueNode node)
+	public void RemoveDialogueNode(DialogueNode dialogueNode)
 	{
-		_dialogueNodes.Remove(node);
-		RemoveChild(node);
+		_dialogueNodes.Remove(dialogueNode);
+		RemoveChild(dialogueNode);
 	}
 
 	public void ClearTree()

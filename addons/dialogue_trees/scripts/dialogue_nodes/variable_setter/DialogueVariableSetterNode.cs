@@ -19,7 +19,7 @@ public partial class DialogueVariableSetterNode : DialogueNode
 	[Export]
 	private EditorOptionButton _variableOptionButton;
 
-	private long _connectedVariableID = -1;
+	private int _connectedVariableIndex = -1;
 	private Array _variableSetterSaveData = null;
 
 	[Signal]
@@ -40,9 +40,9 @@ public partial class DialogueVariableSetterNode : DialogueNode
 
 	public override void GraphReady()
 	{
-		if(_connectedVariableID != -1)
+		if(_connectedVariableIndex != -1)
 		{
-			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableID]);
+			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableIndex]);
 
 			_variableOptionButton.SelectedObject = VariableNode;
 			AddVariableSetterUI(InstantiateVariableSetter());
@@ -59,12 +59,12 @@ public partial class DialogueVariableSetterNode : DialogueNode
 
 	public override DialogueNodeSaveData Save() => new (
 		new() { _variableSetter?.Save() },
-		new () {_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? ((DialogueNode)_variableOptionButton.SelectedObject).ID : -1}
+		new () {_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? DialogueGraph.GetDialogueNodeIndex((DialogueNode)_variableOptionButton.SelectedObject) : -1}
 	);
 
 	public override void Load(DialogueNodeSaveData data)
 	{
-		_connectedVariableID = data.References[0];
+		_connectedVariableIndex = data.References[0];
 		_variableSetterSaveData = data.General[0].AsGodotArray();
 	}
 

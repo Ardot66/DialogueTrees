@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Godot.Collections;
@@ -36,6 +37,8 @@ public partial class DialogueTree : Node
 	public bool DialogueActive {get => FocusedNode != null;}
 
 	private Array<DialogueNodeInstance> _dialogueNodeInstances = new ();
+
+	public IReadOnlyList<DialogueNodeInstance> DialogueNodeInstances {get => _dialogueNodeInstances;}
 
 	///<summary>Called when the conversation is ended by a node in the tree.</summary>
 	[Signal]
@@ -86,7 +89,7 @@ public partial class DialogueTree : Node
 	}
 
 	///<summary>Returns the connection to the output <c>port</c> of <c>node</c>. If there is no connection, returns null. the connection follows the same format as <c>Connections</c>.</summary>
-	public DialogueTreeData.Connection? GetConnectionToPort(long node, int port)
+	public DialogueTreeData.Connection? GetConnectionToPort(int node, int port)
 	{
 		if(TreeData == null)
 			return null;
@@ -103,19 +106,19 @@ public partial class DialogueTree : Node
 	}
 
 	///<summary>Returns the instance with the given index. Only get instances when you actually need them, as they are only instantiated after they are gotten for the first time to increase performance.</summary>
-	public T GetDialogueNodeInstance<T>(long ID) where T : DialogueNodeInstance => GetDialogueNodeInstance(ID) as T;
+	public T GetDialogueNodeInstance<T>(int index) where T : DialogueNodeInstance => GetDialogueNodeInstance(index) as T;
 	
 	///<summary>Returns the instance with the given index. Only get instances when you actually need them, as they are only instantiated after they are gotten for the first time to increase performance.</summary>
-	public DialogueNodeInstance GetDialogueNodeInstance(long ID)
+	public DialogueNodeInstance GetDialogueNodeInstance(int index)
 	{
-		if(ID < 0 || TreeData == null || ID >= TreeData.GetNodesCount())
+		if(index < 0 || TreeData == null || index >= TreeData.GetNodesCount())
 			return null;
 
 		foreach(DialogueNodeInstance instance in _dialogueNodeInstances)
-			if(instance.Index == ID)
+			if(instance.Index == index)
 				return instance;
 
-		return InstantiateDialogueNodeInstance(ID);
+		return InstantiateDialogueNodeInstance(index);
 	}
 
 	///<summary>Returns all instantiated <c>DialogueNodeInstances</c>.</summary>
@@ -127,17 +130,6 @@ public partial class DialogueTree : Node
 	public override void _Ready()
 	{
 		DialogueTreeSettings = DialogueTreesSettings.LoadSettings();
-	}
-
-	private int GetNodeIndex(long ID)
-	{
-		for(int x = 0; x < TreeData.DialogueNodeIDs.Count; x++)
-		{
-			if(TreeData.DialogueNodeIDs[x] == ID)
-				return x;
-		}
-
-		return -1;
 	}
 
 	private DialogueNodeInstance GetFirstDialogueNodeOfType(DialogueNodeData dialogueNodeData)
@@ -154,12 +146,10 @@ public partial class DialogueTree : Node
 		return null;
 	}
 
-	private DialogueNodeInstance InstantiateDialogueNodeInstance(long ID)
+	private DialogueNodeInstance InstantiateDialogueNodeInstance(int index)
 	{
 		if(TreeData == null)
 			return null;
-
-		int index = GetNodeIndex(ID);
 
 		DialogueNodeData dialogueNodeData = DialogueTreeSettings.GetDialogueNodeData(TreeData.GetNodeType(index));
 
@@ -170,7 +160,7 @@ public partial class DialogueTree : Node
 		}
 
 		dialogueNodeInstance.DialogueTree = this;
-		dialogueNodeInstance.Index = TreeData.DialogueNodeIDs[index];
+		dialogueNodeInstance.Index = index;
 
 		_dialogueNodeInstances.Add(dialogueNodeInstance);
 

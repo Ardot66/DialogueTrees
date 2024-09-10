@@ -67,7 +67,8 @@ public readonly struct DialogueNodeSaveData
 	public readonly Array General;
 
 	/// <summary>
-	/// Data section specifically for storing reference IDs to other DialogueNodes. IDs must be placed here to be automatically updated.
+	/// Data section specifically for storing reference IDs to other DialogueNodes. IDs must be placed here to be automatically updated.<br/>
+	/// Any references in this list during a load may not point to a valid node, so always check if references are valid.
 	/// </summary>
 	public readonly Array<int> References;
 }

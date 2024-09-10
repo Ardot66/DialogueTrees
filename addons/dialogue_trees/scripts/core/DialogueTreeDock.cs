@@ -169,15 +169,15 @@ public partial class DialogueTreeDock : Control
 					if(CopiedTreeData == null || DialogueGraph == null)
 						break;
 
-					Array<DialogueNode> loadedNodes = CopiedTreeData.LoadTree(DialogueGraph, false);
+					Array<DialogueNode> loadedNodes = CopiedTreeData.LoadTree(DialogueGraph, out int nodeCount, out Array<int> removedNodes, false);
 
 					UndoRedo.CreateAction("Paste Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
 					foreach(DialogueNode node in loadedNodes)
 						UndoRedo.AddDoReference(node);
 
-					UndoRedo.AddDoMethod(CopiedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, false, loadedNodes);
-					UndoRedo.AddUndoMethod(CopiedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedNodes);
+					UndoRedo.AddDoMethod(CopiedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, loadedNodes, removedNodes);
+					UndoRedo.AddUndoMethod(CopiedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedNodes, nodeCount, removedNodes);
 					UndoRedo.CommitAction(false);
 					break;
 			}
@@ -219,15 +219,15 @@ public partial class DialogueTreeDock : Control
 					return;
 
 				DialogueTreeData loadedTreeData = ResourceLoader.Load<DialogueTreeData>(path);
-				Array<DialogueNode> loadedDialogueNodes = loadedTreeData.LoadTree(DialogueGraph, false);
+				Array<DialogueNode> loadedDialogueNodes = loadedTreeData.LoadTree(DialogueGraph, out int nodeCount, out Array<int> removedNodes, false);
 
 				UndoRedo.CreateAction("Load Dialogue Tree", Godot.UndoRedo.MergeMode.Disable, DialogueGraph.DialogueTree);
 
 				foreach(DialogueNode node in loadedDialogueNodes)
 					UndoRedo.AddDoReference(node);
 
-				UndoRedo.AddDoMethod(loadedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, loadedDialogueNodes);
-				UndoRedo.AddUndoMethod(loadedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedDialogueNodes);
+				UndoRedo.AddDoMethod(loadedTreeData, DialogueTreeData.MethodName.LoadTree, DialogueGraph, false, loadedDialogueNodes, removedNodes);
+				UndoRedo.AddUndoMethod(loadedTreeData, DialogueTreeData.MethodName.UnloadTree, DialogueGraph, loadedDialogueNodes, nodeCount, removedNodes);
 				UndoRedo.CommitAction(false);
 				break;
 		}
