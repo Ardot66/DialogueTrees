@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DialogueTreeData" load_steps=2 format=3 uid="uid://b761xommkxwen"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="1_xsmgq"]
+
+[resource]
+script = ExtResource("1_xsmgq")
+_dialogueNodeTypeNames = [&"Srt", &"Swc", &"Var", &"VSt", &"Cal"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 4)
+_dialogueNodeSaveData = [null, [PackedStringArray("A")], [PackedStringArray("A")], [&"A", &"Enum", "C", PackedStringArray("B", "C")], [["C"]], [PackedStringArray("A", "", "")], [PackedStringArray("A")], [PackedStringArray("A")], [PackedStringArray("A")], [PackedStringArray("A")], [PackedStringArray("A")], [PackedStringArray("A")], null]
+_dialogueNodeReferences = [null, null, null, null, [3], null, null, null, null, null, null, null, [-1]]
+_connections = PackedInt32Array(0, 0, 1, 0, 2, 0, 1, 0, 1, 2, 4, 0, 11, 0, 10, 0, 6, 0, 5, 0, 5, 1, 12, 0)

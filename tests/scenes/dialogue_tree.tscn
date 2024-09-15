@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://blnfhedh7clqx"]
+
+[ext_resource type="Script" path="res://addons/dialogue_trees/DialogueTree.cs" id="1_j3ecs"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeData.cs" id="2_hngde"]
+
+[sub_resource type="Resource" id="Resource_ujedi"]
+script = ExtResource("2_hngde")
+_dialogueNodeTypeNames = [&"Srt", &"Swc", &"Out", &"Fnc", &"Cal", &"Con", &"Var", &"VSt", &"VCn"]
+_dialogueNodeTypes = PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7, 8)
+_dialogueNodeSaveData = [null, [PackedStringArray("A", "B")], ["Yo", "Guy"], ["Func"], null, [null], [&"Var", &"Enum", "3", PackedStringArray("1", "2", "3")], [["2"]], [["3"]]]
+_dialogueNodeReferences = [null, null, null, null, [3], null, null, [6], [6]]
+_connections = PackedInt32Array(0, 0, 1, 0, 3, 0, 2, 0, 2, 0, 4, 0, 5, 0, 7, 0, 5, 1, 8, 0, 1, 2, 2, 0)
+
+[node name="DialogueTree" type="Node"]
+script = ExtResource("1_j3ecs")
+TreeData = SubResource("Resource_ujedi")
