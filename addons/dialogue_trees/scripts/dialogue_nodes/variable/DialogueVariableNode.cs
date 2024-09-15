@@ -62,7 +62,9 @@ public partial class DialogueVariableNode : DialogueNode
 		_typeOptionButton.InitializeGetObjectName(this, MethodName.GetTypeName);
 
 		_variableNameLineEdit.InitializeUndoRedo(GetUndoRedo(), "Set Variable Name", GetDialogueTree());
+		_variableNameLineEdit.InitializeText(VariableName);
 
+		_typeOptionButton.SelectedObject = VariableType;
 		UpdateTypeOptionButtonUI();
 	}
 
@@ -80,12 +82,8 @@ public partial class DialogueVariableNode : DialogueNode
 	public override void Load(DialogueNodeSaveData data)
 	{
 		VariableName = data.General[0].AsStringName();
-		_variableNameLineEdit.InitializeText(VariableName);
-
 		VariableType = data.General[1].AsStringName();
-		_typeOptionButton.SelectedObject = VariableType;
-		UpdateTypeOptionButtonUI();
-		
+
 		LoadVariableUI(InstantiateVariableUI());
 
 		_variableDefinition?.SetDefinition(data.General[3]);
@@ -140,21 +138,21 @@ public partial class DialogueVariableNode : DialogueNode
 		_variableDefaultValueSetter = (DialogueVariableDefaultValueSetter)variableUI[0];
 		_variableDefinition = (DialogueVariableDefinition)variableUI[1];
 
-		if(_variableDefaultValueSetter == null)
-			return;
-		
-		_variableDefaultValueSetter.VariableNode = this;
+		if(_variableDefinition != null)
+		{
+			_variableDefinition.VariableNode = this;
 
-		AddChild(_variableDefaultValueSetter);
-		MoveChild(_variableDefaultValueSetter, 5);
+			AddChild(_variableDefinition);
+			MoveChild(_variableDefinition, 6);	
+		}
 
-		if(_variableDefinition == null)
-			return;
+		if(_variableDefaultValueSetter != null)
+		{
+			_variableDefaultValueSetter.Setup(this);
 
-		_variableDefinition.VariableNode = this;
-
-		AddChild(_variableDefinition);
-		MoveChild(_variableDefinition, 6);	
+			AddChild(_variableDefaultValueSetter);
+			MoveChild(_variableDefaultValueSetter, 5);		
+		}		
 	}
 
 	private void UpdateTypeOptionButtonUI()

@@ -1,9 +1,31 @@
-[gd_scene load_steps=3 format=3 uid="uid://x3dbyrmteyho"]
+[gd_scene load_steps=7 format=3 uid="uid://x3dbyrmteyho"]
 
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeDock.cs" id="1_uqxht"]
 [ext_resource type="PackedScene" uid="uid://cb7hw8jnpxljb" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph.tscn" id="2_udfvt"]
 
-[node name="DialogueTreeDock" type="Control"]
+[sub_resource type="InputEventMouseButton" id="InputEventMouseButton_gdnys"]
+button_mask = 2
+position = Vector2(317, 27)
+global_position = Vector2(326, 73)
+button_index = 2
+pressed = true
+
+[sub_resource type="InputEventKey" id="InputEventKey_k03g4"]
+device = -1
+ctrl_pressed = true
+keycode = 65
+
+[sub_resource type="InputEventKey" id="InputEventKey_nt0bw"]
+device = -1
+ctrl_pressed = true
+keycode = 67
+
+[sub_resource type="InputEventKey" id="InputEventKey_dacr5"]
+device = -1
+ctrl_pressed = true
+keycode = 86
+
+[node name="DialogueTreeDock" type="Control" node_paths=PackedStringArray("_dialogueGraphPopupMenu", "_dialogueGraphCreateNodeSubmenu")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,3 +34,37 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_uqxht")
 _dialogueGraphScene = ExtResource("2_udfvt")
+_dialogueGraphPopupMenu = NodePath("DialogueGraphPopupMenu")
+_dialogueGraphCreateNodeSubmenu = NodePath("DialogueGraphPopupMenu/DialogueGraphCreateNodeSubmenu")
+_openPopupInput = SubResource("InputEventMouseButton_gdnys")
+_fileDialogFilters = PackedStringArray("*.tres", "*.res")
+key = 4194304
+_selectAllNodesItemID = 2
+_selectAllNodesShortcut = SubResource("InputEventKey_k03g4")
+_copySelectedItemID = 3
+_copySelectedShortcut = SubResource("InputEventKey_nt0bw")
+_pasteItemID = 4
+_pasteShortcut = SubResource("InputEventKey_dacr5")
+_saveSelectedItemID = 5
+_loadFileItemID = 6
+
+[node name="DialogueGraphPopupMenu" type="PopupMenu" parent="."]
+auto_translate_mode = 1
+size = Vector2i(128, 174)
+item_count = 7
+item_0/text = "Create Nodes"
+item_1/id = 1
+item_1/separator = true
+item_2/text = "Select All"
+item_2/id = 2
+item_3/text = "Copy Selected"
+item_3/id = 3
+item_4/text = "Paste"
+item_4/id = 4
+item_5/text = "Save Selected"
+item_5/id = 5
+item_6/text = "Load Selected"
+item_6/id = 6
+
+[node name="DialogueGraphCreateNodeSubmenu" type="PopupMenu" parent="DialogueGraphPopupMenu"]
+auto_translate_mode = 1

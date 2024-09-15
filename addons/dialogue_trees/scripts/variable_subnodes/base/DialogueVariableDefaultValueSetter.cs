@@ -9,14 +9,30 @@ namespace Ardot.DialogueTrees.DialogueVariables;
 [Tool]
 public abstract partial class DialogueVariableDefaultValueSetter : VBoxContainer
 {
+	public DialogueVariableNode _variableNode;
 	///<summary>The <c>DialogueVariableNode</c> that created this <c>DialogueVariableDefaultValueSetterNode</c>.</summary>
-	public DialogueVariableNode VariableNode;
+	public DialogueVariableNode VariableNode {get => _variableNode;}
 
 	///<summary>Returns the selected default value of this node.</summary>
 	public abstract Variant GetValue();
 
 	///<summary>Called on load to set the selected default value of this node.</summary>
 	public abstract void SetValue(Variant variant);
+
+	public void Setup(DialogueVariableNode dialogueVariableNode)
+	{
+		if(_variableNode != null)
+			return;
+
+		_variableNode = dialogueVariableNode;
+
+		OnSetup();
+	}
+
+	protected virtual void OnSetup()
+	{
+
+	}
 }
 
 # endif

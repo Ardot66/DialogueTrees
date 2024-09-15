@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b61mkby1y0tyk"]
 
-[node name="DialogueGraphAddNodeButton" type="HBoxContainer"]
+[node name="DialogueGraphOptionsButton" type="HBoxContainer"]
 offset_right = 40.0
 offset_bottom = 40.0
 
@@ -8,7 +8,7 @@ offset_bottom = 40.0
 layout_mode = 2
 tooltip_text = "Add a node to the Dialogue Tree"
 focus_mode = 0
-text = "Add Node..."
+text = "Options..."
 flat = true
 
 [node name="VSeparator" type="VSeparator" parent="."]

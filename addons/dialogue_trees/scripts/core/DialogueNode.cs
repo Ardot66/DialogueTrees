@@ -27,25 +27,17 @@ public abstract partial class DialogueNode : GraphNode
 		TooltipText = nodeData.DialogueNodeTooltip;
 	}
 
-	///<summary>Called after all <c>DialogueNode</c>s in the tree have been loaded.</summary>
-	public virtual void GraphReady()
-	{
-
-	}
-
 	///<summary>Gets the <c>EditorUndoRedoManager</c> that this plugin is using.</summary>
 	public EditorUndoRedoManager GetUndoRedo()
 	{
 		return DialogueGraph.UndoRedo;
 	}
 
-	///<summary>Gets the <c>DialogueTree</c> that this <c>DialogueNode</c> is a part of.</summary>
+	///<summary>Gets the current edited DialogueTree. This may be null if no tree is being edited.</summary>
 	public DialogueTree GetDialogueTree()
 	{
-		return DialogueGraph.DialogueTree;
+		return DialogueGraph.Dock.EditedDialogueTree;
 	}
-
-
 }
 
 public readonly struct DialogueNodeSaveData

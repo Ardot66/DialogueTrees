@@ -15,14 +15,17 @@ public partial class DialogueEnumDefaultValueSetter : DialogueVariableDefaultVal
 	
 	public override void _Ready()
 	{
-		_definitionNode = (DialogueEnumDefinition)VariableNode.VariableDefinition;
-
 		_definitionNode.EnumDefinitionChangingUndoRedo += OnEnumDefinitionChanging;
+
+		UpdateEnumOptionButtonUI(_definitionNode.EnumValues);
+	}
+
+	protected override void OnSetup()
+	{
+		_definitionNode = (DialogueEnumDefinition)VariableNode.VariableDefinition;
 
 		_enumOptionButton.InitializeUndoRedo(VariableNode.GetUndoRedo(), "Set Enum Value", VariableNode.GetDialogueTree());
 		_enumOptionButton.InitializeGetObjectName(this, MethodName.GetEnumName);
-
-		UpdateEnumOptionButtonUI(_definitionNode.EnumValues);
 	}
 
 	public override Variant GetValue()
