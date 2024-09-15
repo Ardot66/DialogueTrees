@@ -18,7 +18,7 @@ public partial class DialogueGraph : GraphEdit
 	private PackedScene _deleteDialogueNodeButtonScene;
 
 	[Export]
-	private PackedScene _dialogueGraphAddNodeButtonScene;
+	private PackedScene _dialogueGraphOptionsButtonScene;
 
 	public const string 
 	FROM_NODE = "from_node",
@@ -26,21 +26,21 @@ public partial class DialogueGraph : GraphEdit
 	TO_NODE = "to_node",
 	TO_PORT = "to_port";
 
+	public const int
+	FROM_NODE_INDEX = 0,
+	FROM_PORT_INDEX = 1,
+	TO_NODE_INDEX = 2,
+	TO_PORT_INDEX = 3;
+
 	public EditorUndoRedoManager UndoRedo;
 	public DialogueTreesPlugin Plugin;
 	public DialogueTreeDock Dock;
-	public DialogueTree DialogueTree;
-
-	public DialogueTreeData TreeData => DialogueTree.TreeData;
-
-	///<summary>The Position Offset that the next node added should have.</summary>
-	public Vector2 AddNodePosition;
 
 	private Vector2[] _childPositions;
 
 	public bool ArrangingNodes;
 
-	private Button _addNodeButton;
+	private Button _optionsButton;
 	private Button _arrangeSelectedNodesButton;
 	private Button _arrangeAllNodesButton;
 
@@ -60,15 +60,14 @@ public partial class DialogueGraph : GraphEdit
 		Dock = Plugin.Dock;
 
 		HBoxContainer graphMenu = GetMenuHBox();
-		Node addNodeButtonContainer = _dialogueGraphAddNodeButtonScene.Instantiate();
-		_addNodeButton = addNodeButtonContainer.GetNode<Button>("Button");
+		Node optionsButtonContainer = _dialogueGraphOptionsButtonScene.Instantiate();
+		_optionsButton = optionsButtonContainer.GetNode<Button>("Button");
 		Node arrangeNodesButtonContainer = _arrangeNodeButtonScene.Instantiate();
 		_arrangeSelectedNodesButton = arrangeNodesButtonContainer.GetNode<Button>("ArrangeSelectedButton");
 		_arrangeAllNodesButton = arrangeNodesButtonContainer.GetNode<Button>("ArrangeAllButton");
 
-		graphMenu.AddChild(addNodeButtonContainer);
-		graphMenu.MoveChild(addNodeButtonContainer, 0);
-
+		graphMenu.AddChild(optionsButtonContainer);
+		graphMenu.MoveChild(optionsButtonContainer, 0);
 		graphMenu.AddChild(arrangeNodesButtonContainer);
 
 		_arrangeSelectedNodesButton.Pressed += () => {
@@ -83,34 +82,17 @@ public partial class DialogueGraph : GraphEdit
 			OnNodeEndMove();
 		};
 
-		_addNodeButton.Pressed += OnAddNodeButtonPressed;
+		_optionsButton.Pressed += OnOptionsButtonPressed;
 		BeginNodeMove += OnNodeBeginMove;
 		EndNodeMove += OnNodeEndMove;
 		DeleteNodesRequest += OnDeleteNodesRequest;
 		ConnectionRequest += OnConnectionRequested;
 		DisconnectionRequest += OnDisonnectionRequested;
-		DialogueTree.TreeExiting += OnDialogueTreeExitingTree;
-		DialogueTree.TreeDataChanged += OnDialogueTreeDataChanged;
-
-		Visible = TreeData != null;
 	}
-
-	public int GetDialogueNodeIndex(DialogueNode dialogueNode)
+	
+    public int GetDialogueNodeIndex(DialogueNode dialogueNode)
 	{
 		return _dialogueNodes.IndexOf(dialogueNode);
-	}
-
-	public override void _GuiInput(InputEvent @event)
-	{
-		if(@event is InputEventMouse mouse && mouse.ButtonMask.HasFlag(MouseButtonMask.Right))
-		{
-			Vector2 mousePosition = GetLocalMousePosition();
-
-			Dock.CreateNodePopup.Popup(new Rect2I(DisplayServer.MouseGetPosition(), Vector2I.Zero));
-			AddNodePosition = (mousePosition + ScrollOffset) / Zoom;
-
-			GetViewport().SetInputAsHandled();
-		}
 	}
 
 	///<summary>Instantiates and sets up a Dialogue Node. May return null. You must manually call GraphReady() and Load() on the returned node.</summary>
@@ -129,6 +111,230 @@ public partial class DialogueGraph : GraphEdit
 		titlebarHBox.AddChild(deleteNodeButton);
 
 		return dialogueNode;
+	}
+
+	public Array<DialogueNode> PreloadTreeData(DialogueTreeData treeData, out Array<int> connections)
+	{
+		Array<DialogueNode> loadedNodes = new ();
+
+		if(treeData.IsEmpty() && DialogueNodes.Count == 0)
+		{
+			foreach (DialogueNodeData nodeData in DialogueTreesSettings.Singleton.DialogueNodeData)
+			{
+				for (int x = 0; x < nodeData.IncludeInNewTrees && x < nodeData.NodeLimit; x++)
+				{
+					DialogueNode node = InstantiateDialogueNode(nodeData);
+
+					if(node == null)
+						continue;
+
+					loadedNodes.Add(node);
+				}
+			}
+		}
+
+		int nodeCount = DialogueNodes.Count;
+		List<int> removedNodes = new ();
+
+		int ConvertReference(int reference)
+		{
+			if (reference == -1)
+				return -1;
+
+			int offset = 0;
+
+			for(int x = 0; x < removedNodes.Count; x++)
+			{
+				int removedNode = removedNodes[x];
+
+				if(removedNode == reference)
+					return -1;
+				if(removedNode < reference)
+					offset --;
+			}
+
+			return reference + nodeCount + offset;
+		}
+
+		for (int x = 0; x < treeData.DialogueNodeSaveData.Count; x++)
+		{
+			DialogueNode node = InstantiateDialogueNode(DialogueTreesSettings.Singleton.GetDialogueNodeData(treeData.GetNodeType(x)));
+
+			if(node == null)
+			{
+				removedNodes.Add(x);
+				continue;
+			}
+
+			loadedNodes.Add(node);
+		}
+
+		for (int x = 0; x < treeData.DialogueNodeSaveData.Count; x++)
+		{
+			int referenceIndex = ConvertReference(x);
+
+			if(referenceIndex == -1)
+				continue;
+
+			DialogueNode node = loadedNodes[referenceIndex - nodeCount];
+
+			Array<int> dialogueNodeReferences = treeData.DialogueNodeReferences[x].Duplicate();
+
+			for(int y = 0; y < dialogueNodeReferences.Count; y++)
+				dialogueNodeReferences[y] = ConvertReference(dialogueNodeReferences[y]);
+
+			node.Load(new DialogueNodeSaveData(
+				treeData.DialogueNodeSaveData[x],
+				dialogueNodeReferences
+			));
+		}
+
+		connections = new Array<int> ();
+
+		for(int x = 0, connectionsCount = treeData.GetConnectionsCount(); x < connectionsCount; x++)
+		{
+			DialogueTreeData.Connection connection = treeData.GetConnection(x);
+
+			int fromNode = ConvertReference(connection.FromNode);
+			int toNode = ConvertReference(connection.ToNode);
+
+			if(fromNode == -1 || toNode == -1)
+				continue;
+
+			connections.Add(fromNode);
+			connections.Add(connection.FromPort);
+			connections.Add(toNode);
+			connections.Add(connection.ToPort);
+		}
+		
+		return loadedNodes;
+	}
+
+	public void LoadTree(Array<DialogueNode> dialogueNodes, Array<int> connections)
+	{
+		foreach(DialogueNode dialogueNode in dialogueNodes)
+			AddDialogueNode(dialogueNode);
+
+		for(int x = 0; x < connections.Count; x += 4)
+		{
+			ConnectNode(
+				_dialogueNodes[connections[x + FROM_NODE_INDEX]].Name, 
+				connections[x + FROM_PORT_INDEX], 
+				_dialogueNodes[connections[x + TO_NODE_INDEX]].Name, 
+				connections[x + TO_PORT_INDEX]
+			);
+		}
+	}
+
+	public void UnloadTree(Array<DialogueNode> dialogueNodes, Array<int> connections)
+	{			
+		for(int x = 0; x < connections.Count; x += 4)
+		{
+			DisconnectNode(
+				_dialogueNodes[connections[x + FROM_NODE_INDEX]].Name, 
+				connections[x + FROM_PORT_INDEX], 
+				_dialogueNodes[connections[x + TO_NODE_INDEX]].Name, 
+				connections[x + TO_PORT_INDEX]
+			);
+		}
+
+		for(int x = 0; x < dialogueNodes.Count; x++)
+			RemoveDialogueNode(dialogueNodes[x]);
+	}
+
+	public void SaveTree(DialogueTreeData treeData, Predicate<DialogueNode> nodesToSaveMatch = null)
+	{
+		System.Collections.Generic.Dictionary<DialogueNode, int> nodesToSave = new ();
+
+		{
+			int x = 0;
+			foreach(DialogueNode node in _dialogueNodes)
+			{
+				if(nodesToSaveMatch != null && !nodesToSaveMatch.Invoke(node))
+					continue;
+
+				nodesToSave.Add(node, x);
+				x++;
+			}
+		}
+
+		Array<Godot.Collections.Array> dialogueNodeSaveData = new ();
+		Array<Array<int>> dialogueNodeReferences = new ();
+
+		foreach(DialogueNode node in nodesToSave.Keys)
+		{
+			DialogueNodeSaveData saveData = node.Save();
+			dialogueNodeSaveData.Add(saveData.General);
+
+			if(saveData.References != null)
+				for(int x = 0; x < saveData.References.Count; x++)
+				{
+					int reference = saveData.References[x];
+
+					if(reference >= _dialogueNodes.Count || reference < 0)
+					{
+						saveData.References[x] = -1;
+						continue;
+					}
+
+					saveData.References[x] = nodesToSave.TryGetValue(_dialogueNodes[saveData.References[x]], out int referenceInt) ? referenceInt : -1;
+				}
+
+			dialogueNodeReferences.Add(saveData.References);
+		}
+
+		int[] nodeTypeIndexes = new int[nodesToSave.Count];
+		System.Collections.Generic.Dictionary<StringName, int> types = new();
+
+		{
+			int x = 0;
+			int nodeTypeIndexesIndex = 0;
+
+			foreach(DialogueNode node in nodesToSave.Keys)
+			{
+				StringName type = node.NodeData.DialogueNodeSaveName;
+
+				if(!types.ContainsKey(type))
+				{
+					types.Add(type, x);
+					x++;
+				}
+
+				nodeTypeIndexes[nodeTypeIndexesIndex] = types[type];
+				nodeTypeIndexesIndex++;
+			}
+		}
+
+		Array<Dictionary> connectionsList = GetConnectionList();
+		List<int> connections = new ();
+
+		for(int x = 0; x < connectionsList.Count; x++)
+		{
+			Dictionary con = connectionsList[x];
+
+			DialogueNode
+			fromNode = GetNodeOrNull<DialogueNode>(con[DialogueGraph.FROM_NODE].AsStringName().ToString()),
+			toNode = GetNodeOrNull<DialogueNode>(con[DialogueGraph.TO_NODE].AsStringName().ToString());
+
+			if(fromNode == null || toNode == null || !nodesToSave.ContainsKey(fromNode) || !nodesToSave.ContainsKey(toNode))
+				continue;
+
+			connections.Add(nodesToSave[fromNode]);
+			connections.Add(con[DialogueGraph.FROM_PORT].AsInt32());
+			connections.Add(nodesToSave[toNode]);
+			connections.Add(con[DialogueGraph.TO_PORT].AsInt32());
+		}
+
+		treeData.SetValues(types.Keys.ToArray(), nodeTypeIndexes, dialogueNodeSaveData, dialogueNodeReferences, connections.ToArray());
+
+		if(!string.IsNullOrEmpty(treeData.ResourcePath))
+			ResourceSaver.Save(treeData, treeData.ResourcePath);
+	}
+
+	
+	public Vector2 ToGraphSpace(Vector2 position)
+	{	
+		return (position + ScrollOffset) / Zoom;
 	}
 
 	public void DisconnectNode(Dictionary connection)
@@ -157,9 +363,6 @@ public partial class DialogueGraph : GraphEdit
 
 	public void ClearTree()
 	{
-		if(TreeData == null)
-			return;
-
 		ClearConnections();
 
 		foreach(DialogueNode node in _dialogueNodes)
@@ -179,12 +382,7 @@ public partial class DialogueGraph : GraphEdit
 
 	public void ArrangeGraph(bool arrangeOnlySelected = false)
 	{
-		// Predicate<GraphNode> arrangeMatch = arrangeOnlySelected ? (node) => node.Selected : null;
-		
-		// GraphArranger3.ArrangeGraph(this, arrangeMatch, arrangeOnlySelected);
-
 		GraphArranger graphArranger = new (arrangeOnlySelected, arrangeOnlySelected);
-		
 		graphArranger.ArrangeGraph(this);
 	}
 
@@ -308,7 +506,7 @@ public partial class DialogueGraph : GraphEdit
 	{
 		Array<StringName> nodeNames = new(nodes.Select(v => v.AsStringName()));
 
-		UndoRedo.CreateAction("Delete Dialogue Nodes", Godot.UndoRedo.MergeMode.Disable, DialogueTree);
+		UndoRedo.CreateAction("Delete Dialogue Nodes", Godot.UndoRedo.MergeMode.Disable, Dock.EditedDialogueTree);
 
 		foreach(StringName nodeName in nodeNames)
 		{
@@ -362,7 +560,7 @@ public partial class DialogueGraph : GraphEdit
 
 		int childCount = GetChildCount();
 
-		UndoRedo.CreateAction("Move Dialogue Nodes", Godot.UndoRedo.MergeMode.Disable, DialogueTree);
+		UndoRedo.CreateAction("Move Dialogue Nodes", Godot.UndoRedo.MergeMode.Disable, Dock.EditedDialogueTree);
 
 		for(int x = 0; x < childCount; x++)
 		{
@@ -380,7 +578,7 @@ public partial class DialogueGraph : GraphEdit
 
 	private void OnConnectionRequested(StringName fromNode, long fromPort, StringName toNode, long toPort)
 	{
-		UndoRedo.CreateAction("Add Connection", Godot.UndoRedo.MergeMode.Disable, DialogueTree);
+		UndoRedo.CreateAction("Add Connection", Godot.UndoRedo.MergeMode.Disable, Dock.EditedDialogueTree);
 
 		Array<Dictionary> existingConnections = GetConnectionsToPort(fromNode, (int)fromPort, SlotType.OutPort);
 
@@ -398,32 +596,15 @@ public partial class DialogueGraph : GraphEdit
 
 	private void OnDisonnectionRequested(StringName fromNode, long fromPort, StringName toNode, long toPort)
 	{
-		UndoRedo.CreateAction("Remove Connection", Godot.UndoRedo.MergeMode.Disable, DialogueTree);
+		UndoRedo.CreateAction("Remove Connection", Godot.UndoRedo.MergeMode.Disable, Dock.EditedDialogueTree);
 		UndoRedo.AddDoMethod(this, GraphEdit.MethodName.DisconnectNode, fromNode, (int)fromPort, toNode, (int)toPort);
 		UndoRedo.AddUndoMethod(this, GraphEdit.MethodName.ConnectNode, fromNode, (int)fromPort, toNode, (int)toPort);
 		UndoRedo.CommitAction();
 	}
 
-	private void OnDialogueTreeExitingTree()
-	{
-		Dock.DisposeGraph(this);
-	}
-
-	private void OnDialogueTreeDataChanged(DialogueTreeData newTreeData)
-	{
-		Visible = newTreeData != null;
-
-		if(newTreeData == null)
-			ClearTree();
-		else
-			newTreeData?.LoadTree(this, true);
-	}
-
-	private void OnAddNodeButtonPressed()
+	private void OnOptionsButtonPressed()
 	{	
-		Dock.CreateNodePopup.Popup(new Rect2I((Vector2I)_addNodeButton.GetScreenPosition() + new Vector2I (0, (int)_addNodeButton.Size.Y), Vector2I.Zero));
-
-		AddNodePosition = (ScrollOffset + Size / 2) / Zoom;
+		Dock.PopupMenu(new Rect2I((Vector2I)_optionsButton.GetScreenPosition() + new Vector2I (0, (int)_optionsButton.Size.Y), Vector2I.Zero));
 	}
 
 	private void OnDeleteNodeButtonPressed(Variant value)
@@ -431,7 +612,7 @@ public partial class DialogueGraph : GraphEdit
 		OnDeleteNodesRequest(new Godot.Collections.Array() {((Node)value).Name});
 	}
 
-	[System.Flags]
+	[Flags]
 	public enum SlotType
 	{
 		InPort = 1,

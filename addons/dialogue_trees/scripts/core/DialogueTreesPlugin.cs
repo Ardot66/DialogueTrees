@@ -17,8 +17,6 @@ public partial class DialogueTreesPlugin
 	public DialogueTreeDock Dock;
 	public Button BottomPanelButton;
 
-	public DialogueTree EditedDialogueTree;
-
 	public override void _EnterTree()
 	{
 		UndoRedo = GetUndoRedo();
@@ -49,30 +47,22 @@ public partial class DialogueTreesPlugin
 			HideBottomPanel();
 
 		BottomPanelButton.Visible = visible;
-		Dock.DockVisible = visible;
 	}
 
 	public override void _ApplyChanges()
 	{
-		if(EditedDialogueTree != null)
-			Dock.SaveTree();
+		Dock.Save();
 	}
 
 	public override void _Edit(GodotObject @object)
 	{
 		if(@object is DialogueTree dialogueTree && IsInstanceValid(@object))
 		{
-			if(EditedDialogueTree != dialogueTree)
-			{
-				Dock.LoadTree(dialogueTree);
-				
-				EditedDialogueTree = dialogueTree;
-			}
-
+			Dock.Edit(dialogueTree);
 			MakeBottomPanelItemVisible(Dock);
 		}
 		else if (@object == null || !IsInstanceValid(@object))
-			Dock.SaveTree();
+			Dock.Edit(null);
 	}
 	
 	#endif

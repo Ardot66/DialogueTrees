@@ -28,16 +28,18 @@ public partial class DialogueActionNode : DialogueNode
 
 		_dialogueTree.ChildEnteredTree += OnChildEnteredDialogueTree;
 		_dialogueTree.ChildExitingTree += OnChildExitingDialogueTree;
-	}
 
-	public override void GraphReady()
-	{
 		UpdateActionsList();
 	}
-
+	
 	public override void Load(DialogueNodeSaveData data)
-	{
-		_actionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueAction>(data.General[0].AsNodePath()); 
+	{		
+		Variant actionPathVariant = data.General[0];
+
+		if(actionPathVariant.VariantType == Variant.Type.Nil)
+			return;
+
+		_actionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueAction>(actionPathVariant.AsNodePath()); 
 	}
 
 	public override DialogueNodeSaveData Save() => new (

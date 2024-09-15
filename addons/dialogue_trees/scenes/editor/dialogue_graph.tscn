@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueGraph.cs" id="1_3whyo"]
 [ext_resource type="PackedScene" uid="uid://10ef0yljes8a" path="res://addons/dialogue_trees/scenes/editor/arrange_nodes_button.tscn" id="2_y5yw7"]
 [ext_resource type="PackedScene" uid="uid://c52ll55qb8u3w" path="res://addons/dialogue_trees/scenes/editor/delete_dialogue_node_button.tscn" id="3_p4hdn"]
-[ext_resource type="PackedScene" uid="uid://b61mkby1y0tyk" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph_add_node_button.tscn" id="4_cdk75"]
+[ext_resource type="PackedScene" uid="uid://b61mkby1y0tyk" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph_options_button.tscn" id="4_cdk75"]
 
 [node name="DialogueGraph" type="GraphEdit"]
 custom_minimum_size = Vector2(200, 0)
@@ -12,6 +12,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 scroll_offset = Vector2(-200, 0)
 right_disconnects = true
 zoom_min = 0.2
@@ -21,4 +22,4 @@ show_arrange_button = false
 script = ExtResource("1_3whyo")
 _arrangeNodeButtonScene = ExtResource("2_y5yw7")
 _deleteDialogueNodeButtonScene = ExtResource("3_p4hdn")
-_dialogueGraphAddNodeButtonScene = ExtResource("4_cdk75")
+_dialogueGraphOptionsButtonScene = ExtResource("4_cdk75")

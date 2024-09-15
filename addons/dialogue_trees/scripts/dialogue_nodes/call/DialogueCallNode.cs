@@ -23,10 +23,7 @@ public partial class DialogueCallNode : DialogueNode
 		
 		DialogueGraph.ChildEnteredTree += OnChildEnteredGraph;
 		DialogueGraph.ChildExitingTree += OnChildExitingGraph;
-	}
 
-	public override void GraphReady()
-	{
 		if(_connectedFunctionIndex != -1)
 		 	_functionSelectButton.SelectedObject = DialogueGraph.DialogueNodes[_connectedFunctionIndex];
 

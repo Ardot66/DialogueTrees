@@ -36,10 +36,7 @@ public partial class DialogueVariableSetterNode : DialogueNode
 		DialogueGraph.ChildEnteredTree += OnChildEnteredGraph;
 		DialogueGraph.DialogueNodeRemovedUndoRedo += OnDialogueNodeRemoved;
 		DialogueGraph.ChildExitingTree += OnChildExitingGraph;
-	}
 
-	public override void GraphReady()
-	{
 		if(_connectedVariableIndex != -1)
 		{
 			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableIndex]);
@@ -56,7 +53,7 @@ public partial class DialogueVariableSetterNode : DialogueNode
 
 		_variableOptionButton.UpdateOptionsUI(_variableNodes);
 	}
-
+	
 	public override DialogueNodeSaveData Save() => new (
 		new() { _variableSetter?.Save() },
 		new () {_variableOptionButton.SelectedObject.VariantType != Variant.Type.Nil ? DialogueGraph.GetDialogueNodeIndex((DialogueNode)_variableOptionButton.SelectedObject) : -1}

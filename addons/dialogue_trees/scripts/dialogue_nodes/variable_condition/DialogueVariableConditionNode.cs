@@ -36,10 +36,7 @@ public partial class DialogueVariableConditionNode : DialogueNode
 		DialogueGraph.ChildEnteredTree += OnChildEnteredGraph;
 		DialogueGraph.DialogueNodeRemovedUndoRedo += OnDialogueNodeRemoved;
 		DialogueGraph.ChildExitingTree += OnChildExitingGraph;
-	}
 
-	public override void GraphReady()
-	{
 		if(_connectedVariableIndex != -1)
 		{
 			SetVariableNode((DialogueVariableNode)DialogueGraph.DialogueNodes[_connectedVariableIndex]);

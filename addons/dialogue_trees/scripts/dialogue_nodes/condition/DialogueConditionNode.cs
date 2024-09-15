@@ -29,16 +29,18 @@ public partial class DialogueConditionNode : DialogueNode
 
 		_dialogueTree.ChildEnteredTree += OnChildEnteredDialogueTree;
 		_dialogueTree.ChildExitingTree += OnChildExitingDialogueTree;
-	}
 
-	public override void GraphReady()
-	{
 		UpdateConditionsList();
 	}
-
+	
 	public override void Load(DialogueNodeSaveData data)
 	{
-		_conditionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueCondition>(data.General[0].AsNodePath()); 
+		Variant conditionPathVariant = data.General[0];
+
+		if(conditionPathVariant.VariantType == Variant.Type.Nil)
+			return;
+
+		_conditionSelectButton.SelectedObject = _dialogueTree.GetNodeOrNull<DialogueCondition>(conditionPathVariant.AsNodePath()); 
 	}
 
 	public override DialogueNodeSaveData Save() => new (
