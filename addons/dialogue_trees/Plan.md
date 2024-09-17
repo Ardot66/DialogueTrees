@@ -59,3 +59,8 @@ Any type defined like this should actually be stored in settings, because they s
 ### Global Variables
 
 Global variables would work much like defined types. They would be locally defined in a dialogue tree, but should be accessible from any DialogueTree, and stored globally.
+
+### Plan of Action
+
+1.   Implement all systems that need to be integrated into the core of DialogueTrees. This includes types, scope, global variables, error detection, and ditching the instance system.
+2.   Start implementing nodes, starting with Typedef, then Variable, Global Variable, and Variable adjacent nodes. After that, implement if and switch, then functions, and everything else.
