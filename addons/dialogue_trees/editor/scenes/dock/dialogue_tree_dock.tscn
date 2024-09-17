@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://x3dbyrmteyho"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueTreeDock.cs" id="1_uqxht"]
-[ext_resource type="PackedScene" uid="uid://cb7hw8jnpxljb" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph.tscn" id="2_udfvt"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/editor/scripts/core/DialogueTreeDock.cs" id="1_uqxht"]
+[ext_resource type="PackedScene" uid="uid://cb7hw8jnpxljb" path="res://addons/dialogue_trees/editor/scenes/graph/dialogue_graph.tscn" id="2_udfvt"]
 
 [sub_resource type="InputEventMouseButton" id="InputEventMouseButton_gdnys"]
 button_mask = 2

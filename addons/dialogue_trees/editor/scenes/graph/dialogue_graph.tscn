@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cb7hw8jnpxljb"]
 
-[ext_resource type="Script" path="res://addons/dialogue_trees/scripts/core/DialogueGraph.cs" id="1_3whyo"]
-[ext_resource type="PackedScene" uid="uid://10ef0yljes8a" path="res://addons/dialogue_trees/scenes/editor/arrange_nodes_button.tscn" id="2_y5yw7"]
-[ext_resource type="PackedScene" uid="uid://c52ll55qb8u3w" path="res://addons/dialogue_trees/scenes/editor/delete_dialogue_node_button.tscn" id="3_p4hdn"]
-[ext_resource type="PackedScene" uid="uid://b61mkby1y0tyk" path="res://addons/dialogue_trees/scenes/editor/dialogue_graph_options_button.tscn" id="4_cdk75"]
+[ext_resource type="Script" path="res://addons/dialogue_trees/editor/scripts/core/DialogueGraph.cs" id="1_3whyo"]
+[ext_resource type="PackedScene" uid="uid://10ef0yljes8a" path="res://addons/dialogue_trees/editor/scenes/graph/arrange_nodes_button.tscn" id="2_y5yw7"]
+[ext_resource type="PackedScene" uid="uid://c52ll55qb8u3w" path="res://addons/dialogue_trees/editor/scenes/graph/delete_dialogue_node_button.tscn" id="3_p4hdn"]
+[ext_resource type="PackedScene" uid="uid://b61mkby1y0tyk" path="res://addons/dialogue_trees/editor/scenes/graph/dialogue_graph_options_button.tscn" id="4_cdk75"]
 
 [node name="DialogueGraph" type="GraphEdit"]
 custom_minimum_size = Vector2(200, 0)

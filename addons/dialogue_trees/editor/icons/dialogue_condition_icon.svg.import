@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cu38lgueo6rpi"
-path="res://.godot/imported/dialogue_action_icon.svg-f3dff2f34c3a2027dd1b56d0e372e3d7.ctex"
+uid="uid://bavth58sriqje"
+path="res://.godot/imported/dialogue_condition_icon.svg-b228a9f022187f3ccd1b3955f4119faf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/dialogue_trees/icons/dialogue_action_icon.svg"
-dest_files=["res://.godot/imported/dialogue_action_icon.svg-f3dff2f34c3a2027dd1b56d0e372e3d7.ctex"]
+source_file="res://addons/dialogue_trees/editor/icons/dialogue_condition_icon.svg"
+dest_files=["res://.godot/imported/dialogue_condition_icon.svg-b228a9f022187f3ccd1b3955f4119faf.ctex"]
 
 [params]
 
