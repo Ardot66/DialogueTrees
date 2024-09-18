@@ -12,8 +12,8 @@ public partial class DialogueNodeData : Resource
     private StringName _dialogueNodeSaveName;
     public StringName DialogueNodeSaveName {get => _dialogueNodeSaveName;}
     
-    private PackedScene _dialogueNodeSingletonScene;
-    public PackedScene DialogueNodeSingletonScene {get => _dialogueNodeSingletonScene;}
+    private PackedScene _dialogueNodeServerScene;
+    public PackedScene DialogueNodeServerScene {get => _dialogueNodeServerScene;}
 
 #if TOOLS
     [Export]
@@ -46,7 +46,7 @@ public partial class DialogueNodeData : Resource
 
     public bool IsValid()
     {
-        return DialogueNodeScene != null && _dialogueNodeSingletonScene != null && !string.IsNullOrEmpty(DialogueNodeName) && !string.IsNullOrEmpty(DialogueNodeSaveName);
+        return DialogueNodeScene != null && _dialogueNodeServerScene != null && !string.IsNullOrEmpty(DialogueNodeName) && !string.IsNullOrEmpty(DialogueNodeSaveName);
     }
 
     # if TOOLS

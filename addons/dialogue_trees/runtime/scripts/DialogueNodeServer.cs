@@ -4,7 +4,7 @@ namespace Ardot.DialogueTrees.Runtime;
 /// <summary>
 /// Special node created during runtime that gives functionality to runtime dialogue nodes.
 /// </summary>
-public abstract partial class DialogueNodeSingleton : Node
+public abstract partial class DialogueNodeServer : Node
 {	
 	/// <summary>
 	/// Function for handling when a node recieves an input.<br/>
