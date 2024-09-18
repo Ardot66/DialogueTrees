@@ -21,7 +21,6 @@ public partial class DialogueTreesPlugin
 	{
 		UndoRedo = GetUndoRedo();
 
-		DialogueTreesSettings.LoadSettings();
 		Dock = ResourceLoader.Load<PackedScene>(_dialogueTreeDockScenePath).Instantiate<DialogueTreeDock>();
 
 		BottomPanelButton = AddControlToBottomPanel(Dock, "Dialogue");
