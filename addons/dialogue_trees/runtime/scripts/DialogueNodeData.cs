@@ -1,126 +1,66 @@
 using Godot;
-using Godot.Collections;
-using System;
-
-namespace Ardot.DialogueTrees;
+namespace Ardot.DialogueTrees.Runtime;
 
 [Tool]
 [GlobalClass]
 public partial class DialogueNodeData : Resource
 {
-    
-    private StringName _dialogueNodeName;
-
     [Export]
-    public StringName DialogueNodeName
-    {
-        get => _dialogueNodeName;
-
-        set
-        {
-            _dialogueNodeName = value;
-            dialogueNodeCollection?.NotifyCollectionModified();
-        }
-    }
+    private StringName _dialogueNodeName;
+    public StringName DialogueNodeName {get => _dialogueNodeName;}
 
     private StringName _dialogueNodeSaveName;
+    public StringName DialogueNodeSaveName {get => _dialogueNodeSaveName;}
+    
+    private PackedScene _dialogueNodeSingletonScene;
+    public PackedScene DialogueNodeSingletonScene {get => _dialogueNodeSingletonScene;}
 
+#if TOOLS
     [Export]
-    public StringName DialogueNodeSaveName
-    {
-        get => _dialogueNodeSaveName;
-
-        set
-        {
-            _dialogueNodeSaveName = value;
-            dialogueNodeCollection?.NotifyCollectionModified();
-        }
-    }
-
     private PackedScene _dialogueNodeScene;
-
-    [Export]
-    public PackedScene DialogueNodeScene
-    {
-        get => _dialogueNodeScene;
-        set
-        {
-            _dialogueNodeScene = value;
-            dialogueNodeCollection?.NotifyCollectionModified();
-        }
-    }
-
-    private Script _instanceScript;
-    [Export]
-    public Script InstanceScript
-    {
-        get => _instanceScript;
-        set
-        {
-            _instanceScript = value;
-            dialogueNodeCollection?.NotifyCollectionModified();
-        }
-    }
+    public PackedScene DialogueNodeScene {get => _dialogueNodeScene;}
+#endif
 
     [ExportGroup("Tooltip")]
     [Export(PropertyHint.MultilineText)]
-    public string DialogueNodeTooltip;
+    private string _dialogueNodeTooltip;
+    public string DialogueNodeTooltip {get => _dialogueNodeTooltip;}
 
     [ExportGroup("Advanced")]
     [Export]
     private int _nodeLimit = -1;
     
-    public int NodeLimit
-    {
-        get => _nodeLimit == -1 ? int.MaxValue : _nodeLimit;
-        set => _nodeLimit = value;
-    }
+    public int NodeLimit { get => _nodeLimit == -1 ? int.MaxValue : _nodeLimit; }
 
     [Export]
-    public bool CanBeDeleted = true;
+    private bool _canBeDeleted = true;
+    public bool CanBeDeleted {get => _canBeDeleted;}
 
     [Export]
-    public bool IncludeInAddNodeMenu = true;
+    private bool _includeInAddNodeMenu = true;
+    public bool IncludeInAddNodeMenu {get => _includeInAddNodeMenu;}
 
     [Export]
-    public int IncludeInNewTrees = 0;
-
-    public DialogueTreesSettings dialogueNodeCollection;
+    private int _includeInNewTrees = 0;
+    public int IncludeInNewTrees {get => _includeInNewTrees;}
 
     public bool IsValid()
     {
-        return DialogueNodeScene != null && InstanceScript != null && !string.IsNullOrEmpty(DialogueNodeName) && !string.IsNullOrEmpty(DialogueNodeSaveName);
+        return DialogueNodeScene != null && _dialogueNodeSingletonScene != null && !string.IsNullOrEmpty(DialogueNodeName) && !string.IsNullOrEmpty(DialogueNodeSaveName);
     }
 
     # if TOOLS
     
-    public bool TryInstantiateDialogueNode(out DialogueNode dialogueNode)
+    public bool TryInstantiateDialogueNode(out Editor.DialogueNode dialogueNode)
     {
         dialogueNode = null;
 
         if(!IsValid())
             return false;
-
-        dialogueNode = DialogueNodeScene.Instantiate() as DialogueNode;
-
+        
+        dialogueNode = DialogueNodeScene.Instantiate() as Editor.DialogueNode;
         return dialogueNode != null;
     }
 
     # endif
-
-    public bool TryInstantiateDialogueNodeInstance(out DialogueNodeInstance dialogueNodeInstance)
-    {
-        dialogueNodeInstance = null;
-
-        if(!IsValid())
-            return false;
-
-		GodotObject @object = new ();
-		ulong instanceID = @object.GetInstanceId();
-		@object.SetScript(InstanceScript);
-
-		dialogueNodeInstance = InstanceFromId(instanceID) as DialogueNodeInstance;
-
-		return dialogueNodeInstance != null;
-    }
 }

@@ -1,8 +1,9 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Ardot.DialogueTrees;
+namespace Ardot.DialogueTrees.Runtime;
 
 ///<summary>Class for storing settings for dialogue nodes and dialogue trees. To add your own settings, create your own partial DialogueTreeSettings.</summary>
 
@@ -18,41 +19,32 @@ public partial class DialogueTreesSettings : Resource
 	public const string 
 	DialogueTreesSettingsPath = $"addons/dialogue_trees/dialogue_trees_settings.tres";
 
-	public static DialogueTreesSettings Singleton => _singleton;
-
 	private static DialogueTreesSettings _singleton = null;
+	public static DialogueTreesSettings Singleton
+	{
+		get
+		{
+			if(_singleton == null)
+			{
+				if(!ResourceLoader.Exists(DialogueTreesSettingsPath))
+				{
+					GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the DialogueTrees plugin or place a new DialogueTreesSettings at {DialogueTreesSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
+					return null;
+				}
 
-	///<summary>Called when the <c>DialogueNodeData</c> variable of this <c>DialogueTreeSettings</c> is modified.</summary>
-	[Signal]
-	public delegate void DialogueNodeCollectionChangedEventHandler();
+				_singleton = ResourceLoader.Load<DialogueTreesSettings>(DialogueTreesSettingsPath);
+			}
 
-	private DialogueNodeData[] _dialogueNodeData = Array.Empty<DialogueNodeData>();
+			return _singleton;
+		}
+	}
 
 	[Export]
-	public DialogueNodeData[] DialogueNodeData 
-	{
-		get => _dialogueNodeData;
-		
-		set
-		{
-			_dialogueNodeData = value;
-
-			foreach(DialogueNodeData nodeData in _dialogueNodeData)
-				if(nodeData != null)
-					nodeData.dialogueNodeCollection = this;
-
-			EmitSignal(SignalName.DialogueNodeCollectionChanged);
-		} 
-	}
+	private DialogueNodeData[] _dialogueNodeData = Array.Empty<DialogueNodeData>();
+	public IReadOnlyList<DialogueNodeData> DialogueNodeData {get => _dialogueNodeData;}
 
 	[Export]
 	public DialogueTreeData DefaultTree = null;
-
-	///<summary>Helper function for adding <c>DialogueNodeData</c> resources to the DialogueNodeData list.</summary>
-	public void AddDialogueNodeData(DialogueNodeData[] dialogueNodeData)
-	{
-		DialogueNodeData = _dialogueNodeData.Concat(dialogueNodeData).ToArray();
-	}
 
 	public DialogueNodeData GetDialogueNodeData(StringName dialogueNodeSaveName)
 	{
@@ -63,21 +55,5 @@ public partial class DialogueTreesSettings : Resource
 		}
 
 		return null;
-	}
-
-	public void NotifyCollectionModified()
-	{
-		EmitSignal(SignalName.DialogueNodeCollectionChanged);
-	}
-
-	public static DialogueTreesSettings LoadSettings()
-	{
-		if(!ResourceLoader.Exists(DialogueTreesSettingsPath))
-		{
-			GD.PrintErr($"The DialogueTreeSettings is missing, please reinstall the DialogueTrees plugin or place a new DialogueTreesSettings at {DialogueTreesSettingsPath} (If you place a new one, the default dialogue nodes will not be included unless you add them manually)");
-			return null;
-		}
-
-		return ResourceLoader.Load<DialogueTreesSettings>(DialogueTreesSettingsPath);
 	}
 }

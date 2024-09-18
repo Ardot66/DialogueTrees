@@ -1,10 +1,8 @@
 using Godot;
 using Godot.Collections;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Ardot.DialogueTrees;
+namespace Ardot.DialogueTrees.Runtime;
 
 ///<summary>Stores all the data about a <c>DialogueTree</c> and its nodes.</summary>
 [Tool]
@@ -22,7 +20,7 @@ public partial class DialogueTreeData : Resource
 		{
 			_dialogueNodeTypeNames = settings.DefaultTree._dialogueNodeTypeNames;
 			_dialogueNodeTypes = settings.DefaultTree._dialogueNodeTypes;
-			_connections = settings.DefaultTree._connections;
+			_stackFrameEnds = settings.DefaultTree._stackFrameEnds;
 			_dialogueNodeSaveData = settings.DefaultTree._dialogueNodeSaveData;
 			return;
 		}
@@ -37,30 +35,33 @@ public partial class DialogueTreeData : Resource
 	[Export]
 	private Array<Godot.Collections.Array> _dialogueNodeSaveData = new ();
 
+	/// <summary>
+	/// Specifies what previous stack frame, if any, should be cleared. If a stackFrameEnd is -1, it should be ignored, if it is -2, the stack frame should be completely cleared.
+	/// </summary>
+	[Export]
+	private int[] _stackFrameEnds = System.Array.Empty<int>();
+
+	/// <summary>
+	/// List for holding node references.
+	/// </summary>
 	[Export]
 	private Array<Array<int>> _dialogueNodeReferences = new ();
 
-	[Export]
-	private int[] _connections = System.Array.Empty<int>();
-
 	public IReadOnlyList<Godot.Collections.Array> DialogueNodeSaveData {get =>_dialogueNodeSaveData;} 
 	public IReadOnlyList<Array<int>> DialogueNodeReferences {get => _dialogueNodeReferences;}
-	public IReadOnlyList<int> Connections {get => _connections;}
 
 	public void Clear()
 	{
 		_dialogueNodeTypeNames = System.Array.Empty<StringName>();
 		_dialogueNodeTypes = System.Array.Empty<int>();
-		_connections = 	System.Array.Empty<int>();
 		_dialogueNodeSaveData.Clear();
 		_dialogueNodeReferences.Clear();
 	}
 
-	public void SetValues(StringName[] dialogueNodeTypeNames, int[] dialogueNodeTypes, Array<Godot.Collections.Array> dialogueNodeSaveData, Array<Array<int>> dialogueNodeReferences, int[] connections)
+	public void SetValues(StringName[] dialogueNodeTypeNames, int[] dialogueNodeTypes, Array<Godot.Collections.Array> dialogueNodeSaveData, Array<Array<int>> dialogueNodeReferences)
 	{
 		_dialogueNodeTypeNames = dialogueNodeTypeNames;
 		_dialogueNodeTypes = dialogueNodeTypes;
-		_connections = connections;
 		_dialogueNodeSaveData = dialogueNodeSaveData;
 		_dialogueNodeReferences = dialogueNodeReferences;
 	}
@@ -72,14 +73,6 @@ public partial class DialogueTreeData : Resource
 
 	public int GetNodesCount() => _dialogueNodeTypes.Length;
 	public StringName GetNodeType(int nodeIndex) => _dialogueNodeTypeNames[_dialogueNodeTypes[nodeIndex]];
-
-	public int GetConnectionsCount() => _connections.Length / 4;
-	public Connection GetConnection(int connectionIndex)
-	{
-		int index = connectionIndex * 4;
-
-		return new (_connections[index], (int)_connections[index + 1], _connections[index + 2], (int)_connections[index + 3]);
-	}
 
 	public bool IsValid()
 	{
@@ -93,25 +86,7 @@ public partial class DialogueTreeData : Resource
 		return
 		typesValid &&
 		_dialogueNodeReferences.Count == nodeCount &&
-		_dialogueNodeSaveData.Count == nodeCount &&
-		_connections.Length % 4 == 0;
-	}	
-
-
-	public readonly struct Connection
-	{
-		public Connection(int fromNode, int fromPort, int toNode, int toPort)
-		{
-			FromNode = fromNode;
-			FromPort = fromPort;
-			ToNode = toNode;
-			ToPort = toPort;
-		}
-
-		public readonly int
-		FromPort,
-		ToPort,
-		FromNode,
-		ToNode;
+		_dialogueNodeSaveData.Count == nodeCount && 
+		_stackFrameEnds.Length == nodeCount;
 	}
 }
