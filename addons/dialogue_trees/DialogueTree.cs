@@ -4,42 +4,13 @@ using System.Linq;
 using Godot;
 using Godot.Collections;
 
-namespace Ardot.DialogueTrees;
+namespace Ardot.DialogueTrees.Runtime;
 
 [Tool]
 [GlobalClass]
 [Icon("res://addons/dialogue_trees/icons/dialogue_tree_icon.svg")]
 public partial class DialogueTree : Node
 {
-	private DialogueTreeData _treeData;
-
-	[Export]
-	public DialogueTreeData TreeData
-	{
-		get => _treeData;
-
-		set
-		{
-			EmitSignal(SignalName.TreeDataChanged, value);
-
-			_treeData = value;
-		}
-	}
-
-	
-	///<summary>A reference to the global <c>DialogueTreeSettings</c> resource.</summary>
-	public DialogueTreesSettings DialogueTreeSettings;
-
-	///<summary>The current <c>DialogueNodeInstance</c> that is recieving input. Setting this value is not recommended, prefer to use <c>DialogueNodeInstance.SendPortOutput()</c>.</summary>
-	public DialogueNodeInstance FocusedNode;
-
-	///<summary>Whether the dialogue is active. Dialogue stops being active when it ends.</summary>
-	public bool DialogueActive {get => FocusedNode != null;}
-
-	private Array<DialogueNodeInstance> _dialogueNodeInstances = new ();
-
-	public IReadOnlyList<DialogueNodeInstance> DialogueNodeInstances {get => _dialogueNodeInstances;}
-
 	///<summary>Called when the conversation is ended by a node in the tree.</summary>
 	[Signal]
 	public delegate void DialogueEndedEventHandler();
@@ -51,29 +22,77 @@ public partial class DialogueTree : Node
 	[Signal]
 	public delegate void TreeDataChangedEventHandler(DialogueTreeData newTreeData);
 
+	private DialogueTreeData _treeData;
+
+	[Export]
+	public DialogueTreeData TreeData
+	{
+		get => _treeData;
+
+		private set
+		{
+			EmitSignal(SignalName.TreeDataChanged, value);
+
+			_treeData = value;
+		}
+	}
+
+	private int _currentNode;
+
+	private readonly Stack<DialogueNodeOutputData> _outputStack = new ();
+	private readonly List<Variant> _stack = new ();
+	private readonly Stack<StackFrame> _stackFrames = new ();
+
+	private readonly struct StackFrame
+	{
+		public StackFrame (int stackBeginIndex, int beginNode, bool clearingStackFrame)
+		{
+			StackBeginIndex = stackBeginIndex;
+			BeginNode = beginNode;
+			ClearingStackFrame = clearingStackFrame;
+		}
+
+		/// <summary>
+		/// The index in the stack where this stack frame begins.
+		/// </summary>
+		public readonly int StackBeginIndex;
+
+		/// <summary>
+		/// The index of the node at the beginning of this stack frame.
+		/// </summary>
+		public readonly int BeginNode;
+		
+		/// <summary>
+		/// If true, this stack frame is effectively 'isolated' from all previous stack frames; in that future nodes cannot access variable in previous stack frames.
+		/// In practice, this means that if a node's stack frame end is -2 and the stack should be completely erased, then when this stack frame is going to be erased,
+		/// it won't. All variables declared after this stack frame will still be destroyed, but the stack frame shall remain.
+		/// </summary>
+		public readonly bool ClearingStackFrame;
+	}
+
 	public void StartDialogue()
 	{   
-		if(TreeData == null)
-		{
-			EndDialogue();
-			return;
-		}
+		// if(TreeData == null)
+		// {
+		// 	EndDialogue();
+		// 	return;
+		// }
 
-		DialogueStartNodeInstance startNode = (DialogueStartNodeInstance)GetFirstDialogueNodeOfType(DialogueTreeSettings.GetDialogueNodeData("Srt"));
+		// DialogueStartNodeInstance startNode = (DialogueStartNodeInstance)GetFirstDialogueNodeOfType(DialogueTreeSettings.GetDialogueNodeData("Srt"));
 
-		if(startNode == null)
-		{
-			EndDialogue();
-			return;
-		}
+		// if(startNode == null)
+		// {
+		// 	EndDialogue();
+		// 	return;
+		// }
 
-		FocusedNode = startNode;
-		startNode.Start();
+		// FocusedNode = startNode;
+		// startNode.Start();
 	}
 
 	public void EndDialogue()
 	{
-		FocusedNode = null;
+		_currentNode = -1;
 		EmitSignal(SignalName.DialogueEnded);
 	}
 
