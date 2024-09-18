@@ -8,7 +8,8 @@
 4.  Add global variables that are defined in somewhere like settings that can be accessed from any tree.
 5.  There should be an error console to warn about things like out-of-scope variables.
 6.  Figure out some kind of typing system.
-7.  Make more generic nodes that handle values, rather han having super specific use cases.
+7.  Add an 'await' system that allows pausing tree execution until certain conditions are met.
+8.  Make more generic nodes that handle values, rather han having super specific use cases.
 
 ### Nodes
 
