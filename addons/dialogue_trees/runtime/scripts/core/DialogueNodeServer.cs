@@ -19,11 +19,11 @@ public abstract partial class DialogueNodeServer : Node
 	public abstract bool RecieveInput(DialogueTree dialogueTree, int index, DialogueNodeSaveData saveData, Variant inputData);
 
 	/// <summary>
-	/// Called when ContinueDialogue is called in a DialogueTree.<para/>
+	/// Called when ContinueDialogue is called in a DialogueTree after this node previously paused the dialogue by returning false from RecieveInput.<para/>
 	/// For information on other parameters, see RecieveInput.
 	/// </summary>
 	/// <param name="parameters">Optional parameters passed by whatever called ContinueDialogue.</param>
-	public virtual void DialogueContinued(DialogueTree dialogueTree, int index, DialogueNodeSaveData saveData, Variant parameters)
+	public virtual void DialogueContinued(DialogueTree dialogueTree, int index, DialogueNodeSaveData saveData, Variant inputData, Variant parameters)
 	{
 
 	}
