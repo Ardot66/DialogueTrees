@@ -46,10 +46,7 @@ public partial class DialogueTreeData : Resource
 	/// </summary>
 	[Export]
 	private Array<Array<int>> _dialogueNodeReferences = new ();
-
-	public IReadOnlyList<Godot.Collections.Array> DialogueNodeSaveData {get =>_dialogueNodeSaveData;} 
-	public IReadOnlyList<Array<int>> DialogueNodeReferences {get => _dialogueNodeReferences;}
-
+	
 	public void Clear()
 	{
 		_dialogueNodeTypeNames = System.Array.Empty<StringName>();
@@ -80,6 +77,11 @@ public partial class DialogueTreeData : Resource
 			_dialogueNodeSaveData[nodeIndex],
 			_dialogueNodeReferences[nodeIndex]
 		);
+	}
+
+	public int GetNodeStackFrameEnds(int nodeIndex)
+	{
+		return 	_stackFrameEnds[nodeIndex];
 	}
 
 	public bool IsValid()
