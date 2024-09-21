@@ -6,7 +6,14 @@ namespace Ardot.DialogueTrees.Runtime;
 
 public partial class DialogueTreesServer : Node
 {
+	private static DialogueTreesServer _singleton;
+	public static DialogueTreesServer Singleton {get => _singleton;}
 	private readonly Dictionary<StringName, DialogueNodeServer> _dialogueNodeServers = new();
+
+    public override void _EnterTree()
+    {
+		_singleton = this;
+    }
 
     public override void _Ready()
     {
