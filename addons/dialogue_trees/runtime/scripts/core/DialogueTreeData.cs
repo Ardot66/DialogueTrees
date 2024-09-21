@@ -74,6 +74,14 @@ public partial class DialogueTreeData : Resource
 	public int GetNodesCount() => _dialogueNodeTypes.Length;
 	public StringName GetNodeType(int nodeIndex) => _dialogueNodeTypeNames[_dialogueNodeTypes[nodeIndex]];
 
+	public DialogueNodeSaveData GetNodeSaveData(int nodeIndex)
+	{
+		return new DialogueNodeSaveData(
+			_dialogueNodeSaveData[nodeIndex],
+			_dialogueNodeReferences[nodeIndex]
+		);
+	}
+
 	public bool IsValid()
 	{
 		int nodeCount = _dialogueNodeTypes.Length;
