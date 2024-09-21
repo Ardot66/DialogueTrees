@@ -15,6 +15,12 @@ public partial class DialogueTree : Node
 	[Signal]
 	public delegate void DialogueEndedEventHandler();
 
+	/// <summary>
+	/// Called when the dialogue is paused by a node.
+	/// </summary>
+	[Signal]
+	public delegate void DialoguePausedEventHandler();
+
 	///<summary>Called when dialogue is output by the tree. Mainly used for printing or displaying dialogue. By default, an empty input has to be given to the tree after it gives an output for it to continue, this is mainly to allow writing output over time. The <c>parameters</c> field can be used for special cases, such as for distinguishing multi-character dialogue.</summary>
 	[Signal]
 	public delegate void DialogueOutputEventHandler(string dialogue, string character, Array parameters = null);
@@ -37,7 +43,7 @@ public partial class DialogueTree : Node
 		}
 	}
 
-	private int _currentNode;
+	private DialogueNodeOutputData _currentOutputData;
 
 	private readonly Stack<DialogueNodeOutputData> _outputStack = new ();
 	private readonly List<Variant> _stack = new ();
@@ -72,149 +78,100 @@ public partial class DialogueTree : Node
 
 	public void StartDialogue()
 	{   
-		// if(TreeData == null)
-		// {
-		// 	EndDialogue();
-		// 	return;
-		// }
+		StringName startNodeSaveName = DialogueTreesSettings.Singleton.StartNodeSaveName;
+		DialogueNodeServer startNodeServer = DialogueTreesServer.Singleton.GetNodeServer(startNodeSaveName);
 
-		// DialogueStartNodeInstance startNode = (DialogueStartNodeInstance)GetFirstDialogueNodeOfType(DialogueTreeSettings.GetDialogueNodeData("Srt"));
-
-		// if(startNode == null)
-		// {
-		// 	EndDialogue();
-		// 	return;
-		// }
-
-		// FocusedNode = startNode;
-		// startNode.Start();
-	}
-
-	public void EndDialogue()
-	{
-		_currentNode = -1;
-		EmitSignal(SignalName.DialogueEnded);
-	}
-
-	///<summary>Sends an input signal to the focused node in the tree. By default, this can be used to select between options and signal that text has finished writing.</summary>
-	public void SendInput(string input = "", params Variant[] parameters)
-	{
-		FocusedNode?.RecieveDialogueInput(input, parameters);
-	}
-
-	public DialogueInputOption[] GetInputOptions()
-	{
-		return FocusedNode == null ? System.Array.Empty<DialogueInputOption>() : FocusedNode.GetDialogueInputOptions();
-	}
-
-	///<summary>Returns the connection to the output <c>port</c> of <c>node</c>. If there is no connection, returns null. the connection follows the same format as <c>Connections</c>.</summary>
-	public DialogueTreeData.Connection? GetConnectionToPort(int node, int port)
-	{
-		if(TreeData == null)
-			return null;
-
-		for(int x = 0; x < TreeData.GetConnectionsCount(); x++)
-		{
-			DialogueTreeData.Connection connection = TreeData.GetConnection(x);
-
-			if(connection.FromNode == node && connection.FromPort == port)
-				return connection;
-		}
-
-		return null;
-	}
-
-	///<summary>Returns the instance with the given index. Only get instances when you actually need them, as they are only instantiated after they are gotten for the first time to increase performance.</summary>
-	public T GetDialogueNodeInstance<T>(int index) where T : DialogueNodeInstance => GetDialogueNodeInstance(index) as T;
-	
-	///<summary>Returns the instance with the given index. Only get instances when you actually need them, as they are only instantiated after they are gotten for the first time to increase performance.</summary>
-	public DialogueNodeInstance GetDialogueNodeInstance(int index)
-	{
-		if(index < 0 || TreeData == null || index >= TreeData.GetNodesCount())
-			return null;
-
-		foreach(DialogueNodeInstance instance in _dialogueNodeInstances)
-			if(instance.Index == index)
-				return instance;
-
-		return InstantiateDialogueNodeInstance(index);
-	}
-
-	///<summary>Returns all instantiated <c>DialogueNodeInstances</c>.</summary>
-	public DialogueNodeInstance[] GetDialogueNodeInstances()
-	{
-		return _dialogueNodeInstances.ToArray();
-	}
-
-	public override void _Ready()
-	{
-		DialogueTreeSettings = DialogueTreesSettings.LoadSettings();
-	}
-
-	private DialogueNodeInstance GetFirstDialogueNodeOfType(DialogueNodeData dialogueNodeData)
-	{
-		if(TreeData == null)
-			return null;
+		int startNodeIndex = -1;
 
 		for(int x = 0; x < TreeData.GetNodesCount(); x++)
 		{
-			if(TreeData.GetNodeType(x) == dialogueNodeData.DialogueNodeSaveName)
-				return GetDialogueNodeInstance(x);
+			if(TreeData.GetNodeType(x) == startNodeSaveName)
+			{
+				startNodeIndex = x;
+				break;
+			}
 		}
 
-		return null;
+		startNodeServer.RecieveInput(this, startNodeIndex, default, default);
+		ExecuteDialogue();
 	}
 
-	private DialogueNodeInstance InstantiateDialogueNodeInstance(int index)
+	public void PushToOutputStack(DialogueNodeOutputData outputData)
 	{
-		if(TreeData == null)
-			return null;
+		_outputStack.Push(outputData);
+	}
 
-		DialogueNodeData dialogueNodeData = DialogueTreeSettings.GetDialogueNodeData(TreeData.GetNodeType(index));
+	public void PushToDataStack(Variant data)
+	{
+		_stack.Add(data);
+	}
 
-		if(!dialogueNodeData.TryInstantiateDialogueNodeInstance(out DialogueNodeInstance dialogueNodeInstance))
+	/// <summary>
+	/// Pulls a value from the stack. Indexes are reversed, so 0 is the most recent item on the stack, while the stack's count is the oldest item.
+	/// </summary>
+	public Variant GetStackValue(int index)
+	{
+		return _stack[^index];
+	}
+
+	public void ContinueDialogue(Variant parameters)
+	{
+		DialogueNodeServer nodeServer = DialogueTreesServer.Singleton.GetNodeServer(_currentOutputData.DestinationDialogueTree.TreeData.GetNodeType(_currentOutputData.DestinationIndex));
+		nodeServer.DialogueContinued(_currentOutputData.DestinationDialogueTree, _currentOutputData.DestinationIndex, _currentOutputData.DestinationDialogueTree.TreeData.GetNodeSaveData(_currentOutputData.DestinationIndex), _currentOutputData.Data, parameters);
+
+		ExecuteDialogue();
+	}
+
+	private void ExecuteDialogue()
+	{
+		while(_outputStack.Count > 0)
 		{
-			GD.PushError($"The DialogueNodeInstance at '{dialogueNodeData.ResourcePath}' is not valid. (either it is null, or it does not inherit from DialogueNodeInstance)");
-			return null;
+			DialogueNodeOutputData outputData = _outputStack.Pop();
+			_currentOutputData = outputData;
+
+			DialogueNodeServer nodeServer = DialogueTreesServer.Singleton.GetNodeServer(outputData.DestinationDialogueTree.TreeData.GetNodeType(outputData.DestinationIndex));
+			bool continueExecution = nodeServer.RecieveInput(outputData.DestinationDialogueTree, outputData.DestinationIndex, outputData.DestinationDialogueTree.TreeData.GetNodeSaveData(outputData.DestinationIndex), outputData.Data);
+
+			if(!continueExecution)
+			{
+				EmitSignal(SignalName.DialoguePaused);
+				break;
+			}
+
+			int stackFrameEnds = outputData.DestinationDialogueTree.TreeData.GetNodeStackFrameEnds(outputData.DestinationIndex);
+
+			StackFrame clearStackFrame = new (-1, -1, false);
+
+			if(stackFrameEnds == -2)
+			{
+				while(_stackFrames.Count > 0)
+				{
+					clearStackFrame = _stackFrames.Peek();
+
+					if(clearStackFrame.ClearingStackFrame)
+						break;
+
+					_stackFrames.Pop();
+				}
+			}
+			else if (stackFrameEnds != -1)
+			{
+				while(_stackFrames.Count > 0)
+				{
+					StackFrame stackFrame = _stackFrames.Pop();
+
+					if(stackFrame.BeginNode != stackFrameEnds)
+						continue;
+
+					clearStackFrame = stackFrame;
+				}
+			}
+
+			if(clearStackFrame.StackBeginIndex != -1)
+				_stack.RemoveRange(_stack.Count - clearStackFrame.StackBeginIndex, clearStackFrame.StackBeginIndex);
 		}
 
-		dialogueNodeInstance.DialogueTree = this;
-		dialogueNodeInstance.Index = index;
-
-		_dialogueNodeInstances.Add(dialogueNodeInstance);
-
-		dialogueNodeInstance.Ready(new DialogueNodeSaveData (TreeData.DialogueNodeSaveData[index], TreeData.DialogueNodeReferences[index]));
-		return dialogueNodeInstance;
+		if(_outputStack.Count == 0)
+			EmitSignal(SignalName.DialogueEnded);
 	}
 }
-
-public struct DialogueInputOption
-{
-	public DialogueInputOption(string input, params Variant[] parameters)
-	{
-		Input = input;   
-		Parameters = parameters;
-	}
-
-	public string Input;
-	public Variant[] Parameters;
-	
-	public static DialogueInputOption[] ConstructInputOptions(string[] inputs, Variant[][] parameters = null)
-	{
-		DialogueInputOption[] dialogueInputOptions = new DialogueInputOption[inputs.Length];
-
-		if(parameters == null)
-			for(int x = 0; x < inputs.Length; x++)
-				dialogueInputOptions[x] = new (inputs[x], null);
-		else
-		{
-			int parametersLength = parameters.Length;
-
-			for(int x = 0; x < inputs.Length; x++)
-				dialogueInputOptions[x] = new (inputs[x], parametersLength > x ? parameters[x] : null);
-		}
-
-		return dialogueInputOptions;
-	}
-}
- 
