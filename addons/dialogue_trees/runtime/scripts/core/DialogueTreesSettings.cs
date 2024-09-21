@@ -40,6 +40,10 @@ public partial class DialogueTreesSettings : Resource
 	}
 
 	[Export]
+	private StringName _startNodeSaveName;
+	public StringName StartNodeSaveName {get => _startNodeSaveName;}
+
+	[Export]
 	private DialogueNodeData[] _dialogueNodeData = Array.Empty<DialogueNodeData>();
 	public IReadOnlyList<DialogueNodeData> DialogueNodeData {get => _dialogueNodeData;}
 
