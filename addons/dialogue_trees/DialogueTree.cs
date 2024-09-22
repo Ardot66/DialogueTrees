@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,8 @@ public partial class DialogueTree : Node
 		}
 	}
 
+	private Variant[] _variables;
+
 	private DialogueNodeOutputData _currentOutputData;
 
 	private readonly Stack<DialogueNodeOutputData> _outputStack = new ();
@@ -74,6 +77,16 @@ public partial class DialogueTree : Node
 		/// it won't. All variables declared after this stack frame will still be destroyed, but the stack frame shall remain.
 		/// </summary>
 		public readonly bool ClearingStackFrame;
+	}
+
+	public Variant GetVariable(int index)
+	{
+		
+	}
+
+	public void SetVariable(int index, Variant value)
+	{
+
 	}
 
 	public void StartDialogue()
@@ -138,7 +151,7 @@ public partial class DialogueTree : Node
 				break;
 			}
 
-			int stackFrameEnds = outputData.DestinationDialogueTree.TreeData.GetNodeStackFrameEnds(outputData.DestinationIndex);
+			int stackFrameEnds = outputData.DestinationDialogueTree.TreeData.StackFrameEnds[(outputData.DestinationIndex);
 
 			StackFrame clearStackFrame = new (-1, -1, false);
 
@@ -174,4 +187,19 @@ public partial class DialogueTree : Node
 		if(_outputStack.Count == 0)
 			EmitSignal(SignalName.DialogueEnded);
 	}
+
+    public override Array<Dictionary> _GetPropertyList()
+    {
+		Array<Dictionary> propertyList = new ();
+
+		ValueTuple<StringName, int>[] constantProperties = new ValueTuple<StringName, int>[1]
+		{
+			new (PropertyName.TreeData, (int)Variant.Type.Object)
+		};
+
+		foreach(ValueTuple<StringName, int> property in constantProperties)
+		{
+			propertyList.Add()
+		}
+    }
 }
